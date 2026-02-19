@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#667eea">
+    <meta name="theme-color" content="#0061ff">
     <title>The Draft Decider - Fantasy Football 2026</title>
     <style>
         * {
@@ -16,73 +16,116 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0044cc 0%, #0088ff 50%, #00aaff 100%);
             min-height: 100vh;
             padding: 40px 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated floating background shapes */
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.08;
+            background: white;
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        body::before {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            width: 300px;
+            height: 300px;
+            bottom: -80px;
+            left: -80px;
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.05); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .welcome-container {
-            max-width: 600px;
+            max-width: 620px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: 48px 44px;
+            box-shadow:
+                0 24px 80px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
             text-align: center;
-        }
-
-        h1 {
-            color: #667eea;
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease-out;
+            position: relative;
         }
 
         .emoji {
-            font-size: 4rem;
-            margin-bottom: 20px;
+            font-size: 4.5rem;
+            margin-bottom: 16px;
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+        }
+
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #0044cc, #0088ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
         }
 
         p {
-            color: #6c757d;
+            color: #4a5568;
             font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 40px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-
-        .btn:active {
-            transform: translateY(0);
+            line-height: 1.7;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
         }
 
         .features {
             text-align: left;
-            margin: 30px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 12px;
+            margin: 32px 0;
+            padding: 24px 28px;
+            background: rgba(0, 100, 255, 0.04);
+            border: 1px solid rgba(0, 100, 255, 0.08);
+            border-radius: 16px;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
         }
 
         .features h2 {
-            color: #495057;
-            font-size: 1.3rem;
-            margin-bottom: 15px;
+            color: #2d3748;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: 0.3px;
         }
 
         .features ul {
@@ -90,25 +133,96 @@
         }
 
         .features li {
-            color: #6c757d;
-            padding: 8px 0;
-            padding-left: 30px;
+            color: #4a5568;
+            padding: 10px 0;
+            padding-left: 32px;
             position: relative;
+            font-size: 1.02rem;
+            line-height: 1.5;
         }
 
         .features li:before {
-            content: "✅";
+            content: "\2713";
             position: absolute;
             left: 0;
+            color: #0077ff;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #0050e0 0%, #0088ff 100%);
+            color: white;
+            padding: 16px 44px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.15rem;
+            letter-spacing: 0.3px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 4px 16px rgba(0, 80, 224, 0.35),
+                0 1px 3px rgba(0, 0, 0, 0.08);
+            animation: fadeInUp 0.8s ease-out 0.5s both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 8px 30px rgba(0, 80, 224, 0.45),
+                0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover::after {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+            box-shadow:
+                0 4px 16px rgba(0, 80, 224, 0.35),
+                0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 24px 16px;
+            }
+
             h1 {
                 font-size: 2rem;
             }
 
             .welcome-container {
-                padding: 30px 20px;
+                padding: 32px 24px;
+                border-radius: 20px;
+            }
+
+            .emoji {
+                font-size: 3.5rem;
+            }
+
+            .features {
+                padding: 20px 22px;
+            }
+
+            .btn {
+                padding: 14px 36px;
+                font-size: 1.05rem;
             }
         }
     </style>
@@ -118,7 +232,7 @@
         <div class="emoji">🏈</div>
         <h1>The Draft Decider</h1>
         <p>Your complete 2026 fantasy football draft companion. Compare scenarios side-by-side to make the tough decisions: elite QB early or stud RB? See which choice maximizes your projected points.</p>
-        
+
         <div class="features">
             <h2>Features:</h2>
             <ul>
