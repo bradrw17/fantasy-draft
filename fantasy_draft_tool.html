@@ -1442,6 +1442,7 @@
                     <thead>
                         <tr>
                             <th>Rank</th>
+                            <th>ADP</th>
                             <th>Player</th>
                             <th>Pos</th>
                             <th>Team</th>
@@ -1469,6 +1470,12 @@
                 </div>
 
                 <div class="assumptions-grid">
+                    <div class="assumption-card">
+                        <div class="assumption-label">League Players</div>
+                        <input type="number" class="assumption-input" id="leaguePlayers" value="12" min="4" max="20" step="2" onchange="refreshADP()">
+                        <div class="assumption-help">Number of teams in the league</div>
+                    </div>
+
                     <div class="assumption-card">
                         <div class="assumption-label">Passing: Yards per Point</div>
                         <input type="number" class="assumption-input" id="passYardsPerPt" value="25" min="1" max="100" onchange="recalculateAllPoints()">
@@ -2206,11 +2213,19 @@ function populateRankings() {
     displayRankings(rankings);
 }
 
+function getADP(overallPick) {
+    const leaguePlayers = parseInt(document.getElementById('leaguePlayers').value) || 12;
+    const round = Math.ceil(overallPick / leaguePlayers);
+    const pick = overallPick - (round - 1) * leaguePlayers;
+    return `${round}.${String(pick).padStart(2, '0')}`;
+}
+
 function displayRankings(rankings) {
     const tbody = document.getElementById('rankingsBody');
     tbody.innerHTML = rankings.map(player => `
         <tr>
             <td><span class="rank-number">${player.rank}</span></td>
+            <td>${getADP(player.rank)}</td>
             <td><span class="player-name">${player.name}</span></td>
             <td><span class="position-badge ${player.position}">${player.position}</span></td>
             <td>${player.team}</td>
@@ -2218,6 +2233,19 @@ function displayRankings(rankings) {
             <td><span class="points-value">${player.points}</span></td>
         </tr>
     `).join('');
+}
+
+function refreshADP() {
+    if (allRankings.length > 0) {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        let filtered = currentFilter === 'ALL'
+            ? allRankings
+            : allRankings.filter(p => p.position === currentFilter);
+        if (searchTerm) {
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm));
+        }
+        displayRankings(filtered);
+    }
 }
 
 function filterPosition(position) {
