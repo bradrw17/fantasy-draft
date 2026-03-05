@@ -639,6 +639,70 @@
             }
         }
 
+        /* Round View styles */
+        .round-view-header {
+            display: grid;
+            grid-template-columns: 60px 1fr 80px 80px;
+            gap: 10px;
+            padding: 8px 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .round-number {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #667eea;
+            text-align: center;
+            padding: 8px 0;
+        }
+
+        .round-slot {
+            grid-template-columns: 60px 1fr 80px 80px;
+        }
+
+        .position-select {
+            padding: 10px 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #495057;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .position-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .round-slot {
+                grid-template-columns: 40px 1fr 60px 60px;
+            }
+
+            .round-view-header {
+                grid-template-columns: 40px 1fr 60px 60px;
+                font-size: 0.7rem;
+            }
+
+            .round-number {
+                font-size: 1rem;
+            }
+
+            .position-select {
+                font-size: 0.8rem;
+                padding: 8px 4px;
+            }
+        }
+
         /* Touch feedback and animations */
         * {
             -webkit-tap-highlight-color: transparent;
@@ -816,6 +880,9 @@
             <div class="tab-nav">
                 <button class="tab-button active" onclick="switchTab('draft')">
                     🏈 Roster View
+                </button>
+                <button class="tab-button" onclick="switchTab('round')">
+                    📋 Round View
                 </button>
                 <button class="tab-button" onclick="switchTab('rankings')">
                     📊 2026 PPR Rankings
@@ -1046,6 +1113,319 @@
     </div>
 </div>
 
+        <!-- Round View Tab -->
+        <div id="roundTab" class="tab-content">
+            <div class="comparison-toggle">
+                <button class="toggle-btn active" id="roundComparisonToggle" onclick="toggleRoundComparisonMode()">
+                    ❌ Disable Comparison Mode
+                </button>
+            </div>
+
+            <div class="scenarios-container comparison-mode" id="roundScenariosContainer">
+                <!-- Scenario A -->
+                <div class="scenario-card scenario-a">
+                    <div class="scenario-header">
+                        <div class="scenario-title">Scenario A</div>
+                        <button class="copy-btn" onclick="copyRoundScenario('a', 'b')">Copy to B →</button>
+                    </div>
+                    <div class="round-view-header">
+                        <span class="rv-col-round">Round</span>
+                        <span class="rv-col-player">Player</span>
+                        <span class="rv-col-points">Pts</span>
+                        <span class="rv-col-pos">Pos</span>
+                    </div>
+                    <div class="roster-grid" id="roundRosterA">
+                        <div class="roster-slot round-slot" data-round="1">
+                            <div class="round-number">1</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="2">
+                            <div class="round-number">2</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="3">
+                            <div class="round-number">3</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="4">
+                            <div class="round-number">4</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="5">
+                            <div class="round-number">5</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="6">
+                            <div class="round-number">6</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="7">
+                            <div class="round-number">7</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="total-section">
+                        <div class="total-label">Scenario A Total</div>
+                        <div class="total-points" id="roundTotalPointsA">0</div>
+                        <button class="clear-btn" onclick="clearRoundScenario('a')">Clear Scenario A</button>
+                    </div>
+                </div>
+
+                <!-- Scenario B -->
+                <div class="scenario-card scenario-b" id="roundScenarioB">
+                    <div class="scenario-header">
+                        <div class="scenario-title">Scenario B</div>
+                        <button class="copy-btn" onclick="copyRoundScenario('b', 'a')">← Copy to A</button>
+                    </div>
+                    <div class="round-view-header">
+                        <span class="rv-col-round">Round</span>
+                        <span class="rv-col-player">Player</span>
+                        <span class="rv-col-points">Pts</span>
+                        <span class="rv-col-pos">Pos</span>
+                    </div>
+                    <div class="roster-grid" id="roundRosterB">
+                        <div class="roster-slot round-slot" data-round="1">
+                            <div class="round-number">1</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="2">
+                            <div class="round-number">2</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="3">
+                            <div class="round-number">3</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="4">
+                            <div class="round-number">4</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="5">
+                            <div class="round-number">5</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="6">
+                            <div class="round-number">6</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                        <div class="roster-slot round-slot" data-round="7">
+                            <div class="round-number">7</div>
+                            <div class="player-input-wrapper">
+                                <input type="text" class="player-input" placeholder="Search player...">
+                                <div class="autocomplete-list hidden"></div>
+                                <div class="player-info"></div>
+                            </div>
+                            <div class="points-display">0</div>
+                            <select class="position-select">
+                                <option value="">--</option>
+                                <option value="QB">QB</option>
+                                <option value="RB">RB</option>
+                                <option value="WR">WR</option>
+                                <option value="TE">TE</option>
+                                <option value="BENCH">BENCH</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="total-section">
+                        <div class="total-label">Scenario B Total</div>
+                        <div class="total-points" id="roundTotalPointsB">0</div>
+                        <button class="clear-btn" onclick="clearRoundScenario('b')">Clear Scenario B</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Round View Comparison Summary -->
+            <div class="comparison-summary" id="roundComparisonSummary">
+                <div class="summary-title">📊 Scenario Comparison</div>
+                <div class="summary-grid">
+                    <div class="scenario-summary scenario-a">
+                        <div class="summary-label">Scenario A</div>
+                        <div class="summary-points" id="roundSummaryPointsA">0</div>
+                        <div id="roundWinnerBadgeA"></div>
+                    </div>
+                    <div class="difference-display">
+                        <div class="difference-label">Difference</div>
+                        <div class="difference-value positive" id="roundDifferenceValue">0</div>
+                        <div style="font-size: 0.85rem; color: #6c757d; margin-top: 5px;" id="roundDifferenceText">points (tied)</div>
+                    </div>
+                    <div class="scenario-summary scenario-b">
+                        <div class="summary-label">Scenario B</div>
+                        <div class="summary-points" id="roundSummaryPointsB">0</div>
+                        <div id="roundWinnerBadgeB"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Rankings Tab -->
         <div id="rankingsTab" class="tab-content">
             <div class="search-filter">
@@ -1214,8 +1594,8 @@ function recalculateAllPoints() {
         }
     });
     
-    // Update displayed points in both scenarios
-    document.querySelectorAll('#rosterA .roster-slot, #rosterB .roster-slot').forEach(slot => {
+    // Update displayed points in both scenarios (roster view + round view)
+    document.querySelectorAll('#rosterA .roster-slot, #rosterB .roster-slot, #roundRosterA .roster-slot, #roundRosterB .roster-slot').forEach(slot => {
         const input = slot.querySelector('.player-input');
         if (input && input.value) {
             const playerKey = input.value.toLowerCase();
@@ -1227,14 +1607,15 @@ function recalculateAllPoints() {
             }
         }
     });
-    
+
     // Update rankings if populated
     const rankingsBody = document.getElementById('rankingsBody');
     if (rankingsBody && rankingsBody.children.length > 0) {
         populateRankings();
     }
-    
+
     calculateTotal();
+    calculateRoundTotal();
 }
 
 function resetAssumptions() {
@@ -1288,6 +1669,8 @@ let activeListIndex = -1;
 document.addEventListener('DOMContentLoaded', () => {
     setupScenarioInputs('rosterA');
     setupScenarioInputs('rosterB');
+    setupScenarioInputs('roundRosterA');
+    setupScenarioInputs('roundRosterB');
 });
 
 function setupScenarioInputs(rosterId) {
@@ -1403,7 +1786,16 @@ function selectPlayer(playerName, wrapper) {
     input.value = player.name;
     autocompleteList.classList.add('hidden');
     updatePlayerDisplay(wrapper, player);
+
+    // Auto-set position dropdown in round view
+    const slot = wrapper.closest('.roster-slot');
+    const posSelect = slot.querySelector('.position-select');
+    if (posSelect && player) {
+        posSelect.value = player.position;
+    }
+
     calculateTotal();
+    calculateRoundTotal();
 }
 
 function updatePlayerDisplay(wrapper, player) {
@@ -1420,6 +1812,7 @@ function updatePlayerDisplay(wrapper, player) {
     }
 
     calculateTotal();
+    if (typeof calculateRoundTotal === 'function') calculateRoundTotal();
 }
 
 function calculateTotal() {
@@ -1559,31 +1952,166 @@ function copyScenario(fromScenario, toScenario) {
     
     calculateTotal();
 }
+
+// ---- Round View Functions ----
+
+function calculateRoundTotal() {
+    // Calculate Scenario A
+    const pointsDisplaysA = document.querySelectorAll('#roundRosterA .points-display');
+    let totalA = 0;
+    pointsDisplaysA.forEach(display => {
+        const points = parseInt(display.textContent) || 0;
+        totalA += points;
+    });
+    document.getElementById('roundTotalPointsA').textContent = totalA;
+
+    // Calculate Scenario B if in comparison mode
+    const scenarioB = document.getElementById('roundScenarioB');
+    const isComparisonMode = !scenarioB.style.display || scenarioB.style.display !== 'none';
+
+    if (isComparisonMode) {
+        const pointsDisplaysB = document.querySelectorAll('#roundRosterB .points-display');
+        let totalB = 0;
+        pointsDisplaysB.forEach(display => {
+            const points = parseInt(display.textContent) || 0;
+            totalB += points;
+        });
+        document.getElementById('roundTotalPointsB').textContent = totalB;
+        updateRoundComparisonSummary(totalA, totalB);
+    }
+}
+
+function updateRoundComparisonSummary(totalA, totalB) {
+    document.getElementById('roundSummaryPointsA').textContent = totalA;
+    document.getElementById('roundSummaryPointsB').textContent = totalB;
+
+    const difference = Math.abs(totalA - totalB);
+    const differenceValue = document.getElementById('roundDifferenceValue');
+    differenceValue.textContent = difference;
+
+    if (totalA > totalB) {
+        differenceValue.classList.remove('negative');
+        differenceValue.classList.add('positive');
+        document.getElementById('roundWinnerBadgeA').innerHTML = '<span class="winner-badge">🏆 Winner</span>';
+        document.getElementById('roundWinnerBadgeB').innerHTML = '';
+        document.getElementById('roundDifferenceText').textContent = 'points higher';
+    } else if (totalB > totalA) {
+        differenceValue.classList.remove('negative');
+        differenceValue.classList.add('positive');
+        document.getElementById('roundWinnerBadgeB').innerHTML = '<span class="winner-badge">🏆 Winner</span>';
+        document.getElementById('roundWinnerBadgeA').innerHTML = '';
+        document.getElementById('roundDifferenceText').textContent = 'points higher';
+    } else {
+        differenceValue.classList.remove('negative', 'positive');
+        document.getElementById('roundWinnerBadgeA').innerHTML = '';
+        document.getElementById('roundWinnerBadgeB').innerHTML = '';
+        document.getElementById('roundDifferenceText').textContent = 'points (tied)';
+    }
+}
+
+function toggleRoundComparisonMode() {
+    const scenarioB = document.getElementById('roundScenarioB');
+    const container = document.getElementById('roundScenariosContainer');
+    const summary = document.getElementById('roundComparisonSummary');
+    const toggleBtn = document.getElementById('roundComparisonToggle');
+
+    if (scenarioB.style.display === 'none' || !scenarioB.style.display) {
+        scenarioB.style.display = 'block';
+        container.classList.add('comparison-mode');
+        summary.classList.remove('hidden');
+        toggleBtn.textContent = '❌ Disable Comparison Mode';
+        toggleBtn.classList.add('active');
+    } else {
+        scenarioB.style.display = 'none';
+        container.classList.remove('comparison-mode');
+        summary.classList.add('hidden');
+        toggleBtn.textContent = '⚖️ Enable Comparison Mode';
+        toggleBtn.classList.remove('active');
+    }
+
+    calculateRoundTotal();
+}
+
+function clearRoundScenario(scenario) {
+    const rosterId = scenario === 'a' ? 'roundRosterA' : 'roundRosterB';
+    const roster = document.getElementById(rosterId);
+
+    const inputs = roster.querySelectorAll('.player-input');
+    inputs.forEach(input => {
+        input.value = '';
+        const wrapper = input.closest('.player-input-wrapper');
+        updatePlayerDisplay(wrapper, null);
+    });
+
+    // Clear position selects
+    const selects = roster.querySelectorAll('.position-select');
+    selects.forEach(select => {
+        select.value = '';
+    });
+
+    calculateRoundTotal();
+}
+
+function copyRoundScenario(fromScenario, toScenario) {
+    const fromRoster = document.getElementById(fromScenario === 'a' ? 'roundRosterA' : 'roundRosterB');
+    const toRoster = document.getElementById(toScenario === 'a' ? 'roundRosterA' : 'roundRosterB');
+
+    const fromSlots = fromRoster.querySelectorAll('.roster-slot');
+    const toSlots = toRoster.querySelectorAll('.roster-slot');
+
+    fromSlots.forEach((fromSlot, index) => {
+        const toSlot = toSlots[index];
+
+        // Copy player name
+        const fromInput = fromSlot.querySelector('.player-input');
+        const toInput = toSlot.querySelector('.player-input');
+        toInput.value = fromInput.value;
+
+        // Copy position select
+        const fromSelect = fromSlot.querySelector('.position-select');
+        const toSelect = toSlot.querySelector('.position-select');
+        toSelect.value = fromSelect.value;
+
+        // Copy player data
+        const fromPoints = fromSlot.querySelector('.points-display').textContent;
+        const fromInfo = fromSlot.querySelector('.player-info').textContent;
+
+        toSlot.querySelector('.points-display').textContent = fromPoints;
+        toSlot.querySelector('.player-info').textContent = fromInfo;
+    });
+
+    calculateRoundTotal();
+}
+
     </script>
     <script>
 // Tab switching and rankings functions
 function switchTab(tabName) {
     // Hide all tabs
     document.getElementById('draftTab').classList.remove('active');
+    document.getElementById('roundTab').classList.remove('active');
     document.getElementById('rankingsTab').classList.remove('active');
     document.getElementById('assumptionsTab').classList.remove('active');
-    
+
     // Remove active class from all buttons
     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-    
+
     // Show selected tab
     if (tabName === 'draft') {
         document.getElementById('draftTab').classList.add('active');
         document.querySelectorAll('.tab-button')[0].classList.add('active');
+    } else if (tabName === 'round') {
+        document.getElementById('roundTab').classList.add('active');
+        document.querySelectorAll('.tab-button')[1].classList.add('active');
     } else if (tabName === 'rankings') {
         document.getElementById('rankingsTab').classList.add('active');
-        document.querySelectorAll('.tab-button')[1].classList.add('active');
+        document.querySelectorAll('.tab-button')[2].classList.add('active');
         if (!document.getElementById('rankingsBody').children.length) {
             populateRankings();
         }
     } else if (tabName === 'assumptions') {
         document.getElementById('assumptionsTab').classList.add('active');
-        document.querySelectorAll('.tab-button')[2].classList.add('active');
+        document.querySelectorAll('.tab-button')[3].classList.add('active');
     }
 }
 
