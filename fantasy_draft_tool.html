@@ -746,6 +746,43 @@
             }
         }
 
+        /* Raw Data Tab */
+        .rawdata-container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+        }
+
+        .rawdata-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .rawdata-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .rawdata-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .rawdata-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .rawdata-table th, .rawdata-table td {
+            white-space: nowrap;
+            font-size: 0.85rem;
+            padding: 8px 10px;
+        }
+
         /* Touch feedback and animations */
         * {
             -webkit-tap-highlight-color: transparent;
@@ -932,6 +969,9 @@
                 </button>
                 <button class="tab-button" onclick="switchTab('assumptions')">
                     ⚙️ League Assumptions
+                </button>
+                <button class="tab-button" onclick="switchTab('rawdata')">
+                    📋 Raw Data
                 </button>
             </div>
 
@@ -1575,6 +1615,33 @@
                 </button>
             </div>
         </div>
+
+        <!-- Raw Data Tab -->
+        <div id="rawdataTab" class="tab-content">
+            <div class="rawdata-container">
+                <div class="rawdata-header">
+                    <div class="rawdata-title">📋 Projected Stats</div>
+                    <div class="rawdata-subtitle">The raw projected statistics used to calculate player point totals</div>
+                </div>
+                <div class="rawdata-filters">
+                    <button class="filter-button active" onclick="filterRawData('ALL', event)">All</button>
+                    <button class="filter-button" onclick="filterRawData('QB', event)">QB</button>
+                    <button class="filter-button" onclick="filterRawData('RB', event)">RB</button>
+                    <button class="filter-button" onclick="filterRawData('WR', event)">WR</button>
+                    <button class="filter-button" onclick="filterRawData('TE', event)">TE</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="rankings-table rawdata-table">
+                        <thead>
+                            <tr id="rawdataHeader"></tr>
+                        </thead>
+                        <tbody id="rawdataBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
     </div>
 
@@ -1683,6 +1750,91 @@ function resetAssumptions() {
 }
 
 // Player data will be embedded here
+let rawDataFilter = 'ALL';
+
+function populateRawData(posFilter) {
+    const header = document.getElementById('rawdataHeader');
+    const tbody = document.getElementById('rawdataBody');
+
+    // Build player list from PLAYER_STATS_RAW with their info from PLAYERS_DATA
+    const players = Object.keys(PLAYER_STATS_RAW)
+        .filter(key => PLAYERS_DATA[key])
+        .map(key => {
+            const info = PLAYERS_DATA[key];
+            const stats = PLAYER_STATS_RAW[key];
+            return { key, ...info, ...stats };
+        })
+        .filter(p => posFilter === 'ALL' || p.position === posFilter)
+        .sort((a, b) => b.points - a.points);
+
+    // Determine columns based on position filter
+    const isQB = posFilter === 'QB';
+    const isRBWRTE = posFilter === 'RB' || posFilter === 'WR' || posFilter === 'TE';
+
+    let columns;
+    if (isQB) {
+        columns = [
+            { label: 'Player', field: 'name' },
+            { label: 'Pos', field: 'position' },
+            { label: 'Team', field: 'team' },
+            { label: 'Pass Yds', field: 'passYds' },
+            { label: 'Pass TD', field: 'passTD' },
+            { label: 'INT', field: 'int' },
+            { label: 'Rush Yds', field: 'rushYds' },
+            { label: 'Rush/Rec TD', field: 'td' },
+            { label: 'Fumbles', field: 'fumbles' },
+            { label: 'Points', field: 'points' }
+        ];
+    } else if (isRBWRTE) {
+        columns = [
+            { label: 'Player', field: 'name' },
+            { label: 'Pos', field: 'position' },
+            { label: 'Team', field: 'team' },
+            { label: 'Rush Yds', field: 'rushYds' },
+            { label: 'Catches', field: 'catches' },
+            { label: 'Rec Yds', field: 'recYds' },
+            { label: 'Rush/Rec TD', field: 'td' },
+            { label: 'Fumbles', field: 'fumbles' },
+            { label: 'Points', field: 'points' }
+        ];
+    } else {
+        // ALL - show everything
+        columns = [
+            { label: 'Player', field: 'name' },
+            { label: 'Pos', field: 'position' },
+            { label: 'Team', field: 'team' },
+            { label: 'Pass Yds', field: 'passYds' },
+            { label: 'Pass TD', field: 'passTD' },
+            { label: 'INT', field: 'int' },
+            { label: 'Rush Yds', field: 'rushYds' },
+            { label: 'Catches', field: 'catches' },
+            { label: 'Rec Yds', field: 'recYds' },
+            { label: 'Rush/Rec TD', field: 'td' },
+            { label: 'Fumbles', field: 'fumbles' },
+            { label: 'Points', field: 'points' }
+        ];
+    }
+
+    header.innerHTML = columns.map(c => `<th>${c.label}</th>`).join('');
+
+    tbody.innerHTML = players.map(p => {
+        return '<tr>' + columns.map(c => {
+            const val = p[c.field];
+            if (c.field === 'name') return `<td><span class="player-name">${val}</span></td>`;
+            if (c.field === 'position') return `<td><span class="position-badge ${val}">${val}</span></td>`;
+            if (c.field === 'points') return `<td><span class="points-value">${val}</span></td>`;
+            return `<td>${val || 0}</td>`;
+        }).join('') + '</tr>';
+    }).join('');
+}
+
+function filterRawData(pos, event) {
+    rawDataFilter = pos;
+    document.querySelectorAll('.rawdata-filters .filter-button').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    populateRawData(pos);
+}
+
 const PLAYERS_DATA = {"josh allen": {"name": "Josh Allen", "position": "QB", "team": "Bills", "bye": 7, "points": 385}, "lamar jackson": {"name": "Lamar Jackson", "position": "QB", "team": "Ravens", "bye": 7, "points": 377}, "jayden daniels": {"name": "Jayden Daniels", "position": "QB", "team": "Redskins", "bye": 12, "points": 358}, "joe burrow": {"name": "Joe Burrow", "position": "QB", "team": "Bengals", "bye": 10, "points": 354}, "jalen hurts": {"name": "Jalen Hurts", "position": "QB", "team": "Eagles", "bye": 9, "points": 353}, "patrick mahomes": {"name": "Patrick Mahomes", "position": "QB", "team": "Chiefs", "bye": 9, "points": 311}, "baker mayfield": {"name": "Baker Mayfield", "position": "QB", "team": "Buccaneers", "bye": 14, "points": 310}, "drake maye": {"name": "Drake Maye", "position": "QB", "team": "Patriots", "bye": 6, "points": 299}, "trevor lawrence": {"name": "Trevor Lawrence", "position": "QB", "team": "Jaguars", "bye": 8, "points": 299}, "sam darnold": {"name": "Sam Darnold", "position": "QB", "team": "Vikings", "bye": 6, "points": 297}, "bo nix": {"name": "Bo Nix", "position": "QB", "team": "Broncos", "bye": 9, "points": 286}, "matthew stafford": {"name": "Matthew Stafford", "position": "QB", "team": "Rams", "bye": 8, "points": 282}, "jordan love": {"name": "Jordan Love", "position": "QB", "team": "Packers", "bye": 10, "points": 281}, "tua tagovailoa": {"name": "Tua Tagovailoa", "position": "QB", "team": "Dolphins", "bye": 8, "points": 279}, "caleb williams": {"name": "Caleb Williams", "position": "QB", "team": "Bears", "bye": 7, "points": 273}, "brock purdy": {"name": "Brock Purdy", "position": "QB", "team": "49ers", "bye": 9, "points": 273}, "justin herbert": {"name": "Justin Herbert", "position": "QB", "team": "Chargers", "bye": 12, "points": 261}, "anthony richardson": {"name": "Anthony Richardson", "position": "QB", "team": "Colts", "bye": 10, "points": 259}, "cj stroud": {"name": "CJ Stroud", "position": "QB", "team": "Texans", "bye": 6, "points": 258}, "geno smith": {"name": "Geno Smith", "position": "QB", "team": "Seahawks", "bye": 8, "points": 258}, "jared goff": {"name": "Jared Goff", "position": "QB", "team": "Lions", "bye": 8, "points": 255}, "kirk cousins": {"name": "Kirk Cousins", "position": "QB", "team": "Falcons", "bye": 5, "points": 255}, "kyler murray": {"name": "Kyler Murray", "position": "QB", "team": "Cardinals", "bye": 8, "points": 247}, "dak prescott": {"name": "Dak Prescott", "position": "QB", "team": "Cowboys", "bye": 10, "points": 246}, "aaron rodgers": {"name": "Aaron Rodgers", "position": "QB", "team": "Jets", "bye": 11, "points": 233}, "deshaun watson": {"name": "Deshaun Watson", "position": "QB", "team": "Browns", "bye": 7, "points": 228}, "daniel jones": {"name": "Daniel Jones", "position": "QB", "team": "Giants", "bye": 14, "points": 218}, "russell wilson": {"name": "Russell Wilson", "position": "QB", "team": "Steelers", "bye": 7, "points": 214}, "gardner minshew": {"name": "Gardner Minshew", "position": "QB", "team": "Raiders", "bye": 12, "points": 214}, "bryce young": {"name": "Bryce Young", "position": "QB", "team": "Panthers", "bye": 5, "points": 203}, "will levis": {"name": "Will Levis", "position": "QB", "team": "Titans", "bye": 10, "points": 201}, "derek carr": {"name": "Derek Carr", "position": "QB", "team": "Saints", "bye": 14, "points": 196}, "jameis winston": {"name": "Jameis Winston", "position": "QB", "team": "Browns", "bye": 7, "points": 192}, "michael penix jr": {"name": "Michael Penix Jr", "position": "QB", "team": "Falcons", "bye": 5, "points": 179}, "carson wentz": {"name": "Carson Wentz", "position": "QB", "team": "Rams", "bye": 8, "points": 175}, "bijan robinson": {"name": "Bijan Robinson", "position": "RB", "team": "Falcons", "bye": 5, "points": 371}, "saquon barkley": {"name": "Saquon Barkley", "position": "RB", "team": "Eagles", "bye": 9, "points": 368}, "jahmyr gibbs": {"name": "Jahmyr Gibbs", "position": "RB", "team": "Lions", "bye": 8, "points": 327}, "bucky irving": {"name": "Bucky Irving", "position": "RB", "team": "Buccaneers", "bye": 14, "points": 312}, "chase brown": {"name": "Chase Brown", "position": "RB", "team": "Bengals", "bye": 10, "points": 308}, "alvin kamara": {"name": "Alvin Kamara", "position": "RB", "team": "Saints", "bye": 14, "points": 296}, "kenneth walker": {"name": "Kenneth Walker", "position": "RB", "team": "Seahawks", "bye": 8, "points": 295}, "isaiah pacheco": {"name": "Isaiah Pacheco", "position": "RB", "team": "Chiefs", "bye": 9, "points": 286}, "jonathan taylor": {"name": "Jonathan Taylor", "position": "RB", "team": "Colts", "bye": 10, "points": 283}, "derrick henry": {"name": "Derrick Henry", "position": "RB", "team": "Ravens", "bye": 7, "points": 282}, "de'von achane": {"name": "De'Von Achane", "position": "RB", "team": "Dolphins", "bye": 8, "points": 278}, "david montgomery": {"name": "David Montgomery", "position": "RB", "team": "Lions", "bye": 8, "points": 276}, "james cook": {"name": "James Cook", "position": "RB", "team": "Bills", "bye": 7, "points": 273}, "josh jacobs": {"name": "Josh Jacobs", "position": "RB", "team": "Packers", "bye": 10, "points": 270}, "joe mixon": {"name": "Joe Mixon", "position": "RB", "team": "Texans", "bye": 6, "points": 268}, "james conner": {"name": "James Conner", "position": "RB", "team": "Cardinals", "bye": 8, "points": 264}, "breece hall": {"name": "Breece Hall", "position": "RB", "team": "Jets", "bye": 11, "points": 261}, "najee harris": {"name": "Najee Harris", "position": "RB", "team": "Steelers", "bye": 7, "points": 260}, "kyren williams": {"name": "Kyren Williams", "position": "RB", "team": "Rams", "bye": 8, "points": 259}, "aaron jones": {"name": "Aaron Jones", "position": "RB", "team": "Vikings", "bye": 6, "points": 256}, "tony pollard": {"name": "Tony Pollard", "position": "RB", "team": "Titans", "bye": 10, "points": 249}, "zach charbonnet": {"name": "Zach Charbonnet", "position": "RB", "team": "Seahawks", "bye": 8, "points": 246}, "javonte williams": {"name": "Javonte Williams", "position": "RB", "team": "Broncos", "bye": 9, "points": 240}, "rhamondre stevenson": {"name": "Rhamondre Stevenson", "position": "RB", "team": "Patriots", "bye": 6, "points": 237}, "rachaad white": {"name": "Rachaad White", "position": "RB", "team": "Buccaneers", "bye": 14, "points": 237}, "travis etienne": {"name": "Travis Etienne", "position": "RB", "team": "Jaguars", "bye": 8, "points": 233}, "jordan mason": {"name": "Jordan Mason", "position": "RB", "team": "49ers", "bye": 9, "points": 232}, "rico dowdle": {"name": "Rico Dowdle", "position": "RB", "team": "Cowboys", "bye": 10, "points": 229}, "nick chubb": {"name": "Nick Chubb", "position": "RB", "team": "Browns", "bye": 7, "points": 227}, "tyrone tracy": {"name": "Tyrone Tracy", "position": "RB", "team": "Giants", "bye": 14, "points": 224}, "kareem hunt": {"name": "Kareem Hunt", "position": "RB", "team": "Chiefs", "bye": 9, "points": 222}, "chuba hubbard": {"name": "Chuba Hubbard", "position": "RB", "team": "Panthers", "bye": 5, "points": 221}, "jaylen warren": {"name": "Jaylen Warren", "position": "RB", "team": "Steelers", "bye": 7, "points": 219}, "isaac guerendo": {"name": "Isaac Guerendo", "position": "RB", "team": "49ers", "bye": 9, "points": 216}, "tyjae spears": {"name": "Tyjae Spears", "position": "RB", "team": "Titans", "bye": 10, "points": 215}, "tank bigsby": {"name": "Tank Bigsby", "position": "RB", "team": "Jaguars", "bye": 8, "points": 210}, "brian robinson jr": {"name": "Brian Robinson Jr", "position": "RB", "team": "Redskins", "bye": 12, "points": 208}, "zamir white": {"name": "Zamir White", "position": "RB", "team": "Raiders", "bye": 12, "points": 206}, "braelon allen": {"name": "Braelon Allen", "position": "RB", "team": "Jets", "bye": 11, "points": 204}, "benson": {"name": "Benson", "position": "RB", "team": "Bears", "bye": 7, "points": 200}, "zach moss": {"name": "Zach Moss", "position": "RB", "team": "Bengals", "bye": 10, "points": 198}, "ray davis": {"name": "Ray Davis", "position": "RB", "team": "Bills", "bye": 7, "points": 197}, "trey benson": {"name": "Trey Benson", "position": "RB", "team": "Cardinals", "bye": 8, "points": 195}, "ameer abdullah": {"name": "Ameer Abdullah", "position": "RB", "team": "Raiders", "bye": 12, "points": 195}, "dameon pierce": {"name": "Dameon Pierce", "position": "RB", "team": "Texans", "bye": 6, "points": 194}, "justice hill": {"name": "Justice Hill", "position": "RB", "team": "Ravens", "bye": 7, "points": 193}, "jaleel mclaughlin": {"name": "Jaleel McLaughlin", "position": "RB", "team": "Broncos", "bye": 9, "points": 192}, "jamaal williams": {"name": "Jamaal Williams", "position": "RB", "team": "Saints", "bye": 14, "points": 189}, "kimani vidal": {"name": "Kimani Vidal", "position": "RB", "team": "Chargers", "bye": 12, "points": 189}, "tyler allgeier": {"name": "Tyler Allgeier", "position": "RB", "team": "Falcons", "bye": 5, "points": 188}, "ezekiel elliott": {"name": "Ezekiel Elliott", "position": "RB", "team": "Cowboys", "bye": 10, "points": 186}, "jerome ford": {"name": "Jerome Ford", "position": "RB", "team": "Browns", "bye": 7, "points": 185}, "audric estime": {"name": "Audric Estime", "position": "RB", "team": "Broncos", "bye": 9, "points": 184}, "ty johnson": {"name": "Ty Johnson", "position": "RB", "team": "Bills", "bye": 7, "points": 184}, "austin ekeler": {"name": "Austin Ekeler", "position": "RB", "team": "Redskins", "bye": 12, "points": 184}, "devin singletary": {"name": "Devin Singletary", "position": "RB", "team": "Giants", "bye": 14, "points": 179}, "alexander mattison": {"name": "Alexander Mattison", "position": "RB", "team": "Raiders", "bye": 12, "points": 177}, "gus edwards": {"name": "Gus Edwards", "position": "RB", "team": "Chargers", "bye": 12, "points": 175}, "raheem mostert": {"name": "Raheem Mostert", "position": "RB", "team": "Dolphins", "bye": 8, "points": 172}, "antonio gibson": {"name": "Antonio Gibson", "position": "RB", "team": "Patriots", "bye": 6, "points": 170}, "sean tucker": {"name": "Sean Tucker", "position": "RB", "team": "Buccaneers", "bye": 14, "points": 168}, "craig reynolds": {"name": "Craig Reynolds", "position": "RB", "team": "Lions", "bye": 8, "points": 166}, "emari demercado": {"name": "Emari Demercado", "position": "RB", "team": "Cardinals", "bye": 8, "points": 166}, "blake corum": {"name": "Blake Corum", "position": "RB", "team": "Rams", "bye": 8, "points": 164}, "kenneth gainwell": {"name": "Kenneth Gainwell", "position": "RB", "team": "Eagles", "bye": 9, "points": 162}, "clyde edwards helaire": {"name": "Clyde Edwards Helaire", "position": "RB", "team": "Chiefs", "bye": 9, "points": 159}, "miles sanders": {"name": "Miles Sanders", "position": "RB", "team": "Panthers", "bye": 5, "points": 157}, "cam akers": {"name": "Cam Akers", "position": "RB", "team": "Vikings", "bye": 6, "points": 153}, "d'ernest johnson": {"name": "D'Ernest Johnson", "position": "RB", "team": "Jaguars", "bye": 8, "points": 150}, "cordarrelle patterson": {"name": "Cordarrelle Patterson", "position": "RB", "team": "Steelers", "bye": 7, "points": 146}, "jeff wilson": {"name": "Jeff Wilson", "position": "RB", "team": "Dolphins", "bye": 8, "points": 143}, "ja'marr chase": {"name": "Ja'Marr Chase", "position": "WR", "team": "Bengals", "bye": 10, "points": 364}, "justin jefferson": {"name": "Justin Jefferson", "position": "WR", "team": "Vikings", "bye": 6, "points": 348}, "malik nabers": {"name": "Malik Nabers", "position": "WR", "team": "Giants", "bye": 14, "points": 345}, "brian thomas": {"name": "Brian Thomas", "position": "WR", "team": "Jaguars", "bye": 8, "points": 339}, "nico collins": {"name": "Nico Collins", "position": "WR", "team": "Texans", "bye": 6, "points": 323}, "ceedee lamb": {"name": "CeeDee Lamb", "position": "WR", "team": "Cowboys", "bye": 10, "points": 321}, "drake london": {"name": "Drake London", "position": "WR", "team": "Falcons", "bye": 5, "points": 317}, "amon-ra st. brown": {"name": "Amon-Ra St. Brown", "position": "WR", "team": "Lions", "bye": 8, "points": 316}, "puka nacua": {"name": "Puka Nacua", "position": "WR", "team": "Rams", "bye": 8, "points": 315}, "a.j. brown": {"name": "A.J. Brown", "position": "WR", "team": "Eagles", "bye": 9, "points": 307}, "ladd mcconkey": {"name": "Ladd McConkey", "position": "WR", "team": "Chargers", "bye": 12, "points": 306}, "jaxon smith-njigba": {"name": "Jaxon Smith-Njigba", "position": "WR", "team": "Seahawks", "bye": 8, "points": 299}, "tee higgins": {"name": "Tee Higgins", "position": "WR", "team": "Bengals", "bye": 10, "points": 298}, "calvin ridley": {"name": "Calvin Ridley", "position": "WR", "team": "Titans", "bye": 10, "points": 297}, "travis hunter": {"name": "Travis Hunter", "position": "WR", "team": "Jaguars", "bye": 8, "points": 296}, "marvin harrison jr.": {"name": "Marvin Harrison Jr.", "position": "WR", "team": "Cardinals", "bye": 8, "points": 295}, "devonta smith": {"name": "Devonta Smith", "position": "WR", "team": "Eagles", "bye": 9, "points": 290}, "terry mclaurin": {"name": "Terry McLaurin", "position": "WR", "team": "Redskins", "bye": 12, "points": 289}, "davante adams": {"name": "Davante Adams", "position": "WR", "team": "Rams", "bye": 8, "points": 288}, "george pickens": {"name": "George Pickens", "position": "WR", "team": "Steelers", "bye": 7, "points": 285}, "cooper kupp": {"name": "Cooper Kupp", "position": "WR", "team": "Rams", "bye": 8, "points": 282}, "garrett wilson": {"name": "Garrett Wilson", "position": "WR", "team": "Jets", "bye": 11, "points": 281}, "chris olave": {"name": "Chris Olave", "position": "WR", "team": "Saints", "bye": 14, "points": 280}, "tyreek hill": {"name": "Tyreek Hill", "position": "WR", "team": "Dolphins", "bye": 8, "points": 279}, "mike evans": {"name": "Mike Evans", "position": "WR", "team": "Buccaneers", "bye": 14, "points": 279}, "dj moore": {"name": "DJ Moore", "position": "WR", "team": "Bears", "bye": 7, "points": 275}, "zay flowers": {"name": "Zay Flowers", "position": "WR", "team": "Ravens", "bye": 7, "points": 273}, "jayden reed": {"name": "Jayden Reed", "position": "WR", "team": "Packers", "bye": 10, "points": 267}, "deebo samuel": {"name": "Deebo Samuel", "position": "WR", "team": "49ers", "bye": 9, "points": 266}, "jordan addison": {"name": "Jordan Addison", "position": "WR", "team": "Vikings", "bye": 6, "points": 264}, "dk metcalf": {"name": "DK Metcalf", "position": "WR", "team": "Seahawks", "bye": 8, "points": 263}, "amari cooper": {"name": "Amari Cooper", "position": "WR", "team": "Bills", "bye": 7, "points": 260}, "rome odunze": {"name": "Rome Odunze", "position": "WR", "team": "Bears", "bye": 7, "points": 257}, "courtland sutton": {"name": "Courtland Sutton", "position": "WR", "team": "Broncos", "bye": 9, "points": 256}, "keenan allen": {"name": "Keenan Allen", "position": "WR", "team": "Bears", "bye": 7, "points": 254}, "diontae johnson": {"name": "Diontae Johnson", "position": "WR", "team": "Texans", "bye": 6, "points": 253}, "tank dell": {"name": "Tank Dell", "position": "WR", "team": "Texans", "bye": 6, "points": 253}, "jameson williams": {"name": "Jameson Williams", "position": "WR", "team": "Lions", "bye": 8, "points": 252}, "jalen tolbert": {"name": "Jalen Tolbert", "position": "WR", "team": "Cowboys", "bye": 10, "points": 251}, "brandon aiyuk": {"name": "Brandon Aiyuk", "position": "WR", "team": "49ers", "bye": 9, "points": 251}, "darnell mooney": {"name": "Darnell Mooney", "position": "WR", "team": "Falcons", "bye": 5, "points": 248}, "stefon diggs": {"name": "Stefon Diggs", "position": "WR", "team": "Texans", "bye": 6, "points": 247}, "christian watson": {"name": "Christian Watson", "position": "WR", "team": "Packers", "bye": 10, "points": 247}, "rashid shaheed": {"name": "Rashid Shaheed", "position": "WR", "team": "Saints", "bye": 14, "points": 244}, "calvin austin iii": {"name": "Calvin Austin III", "position": "WR", "team": "Steelers", "bye": 7, "points": 244}, "jakobi meyers": {"name": "Jakobi Meyers", "position": "WR", "team": "Raiders", "bye": 12, "points": 242}, "quentin johnson": {"name": "Quentin Johnson", "position": "WR", "team": "Chargers", "bye": 12, "points": 240}, "xavier worthy": {"name": "Xavier Worthy", "position": "WR", "team": "Chiefs", "bye": 9, "points": 240}, "jalen mcmillan": {"name": "Jalen McMillan", "position": "WR", "team": "Buccaneers", "bye": 14, "points": 239}, "jaylen waddle": {"name": "Jaylen Waddle", "position": "WR", "team": "Dolphins", "bye": 8, "points": 238}, "tyler lockett": {"name": "Tyler Lockett", "position": "WR", "team": "Seahawks", "bye": 8, "points": 238}, "hollywood brown": {"name": "Hollywood Brown", "position": "WR", "team": "Chiefs", "bye": 9, "points": 237}, "michael pittman jr": {"name": "Michael Pittman Jr", "position": "WR", "team": "Colts", "bye": 10, "points": 236}, "josh downs": {"name": "Josh Downs", "position": "WR", "team": "Colts", "bye": 10, "points": 236}, "marvin mims": {"name": "Marvin Mims", "position": "WR", "team": "Broncos", "bye": 9, "points": 235}, "adonai mitchell": {"name": "Adonai Mitchell", "position": "WR", "team": "Colts", "bye": 10, "points": 234}, "ricky pearsall": {"name": "Ricky Pearsall", "position": "WR", "team": "49ers", "bye": 9, "points": 234}, "xavier legette": {"name": "Xavier Legette", "position": "WR", "team": "Panthers", "bye": 5, "points": 233}, "keon coleman": {"name": "Keon Coleman", "position": "WR", "team": "Bills", "bye": 7, "points": 232}, "demario douglas": {"name": "Demario Douglas", "position": "WR", "team": "Patriots", "bye": 6, "points": 231}, "jauan jennings": {"name": "Jauan Jennings", "position": "WR", "team": "49ers", "bye": 9, "points": 230}, "xavier gipson": {"name": "Xavier Gipson", "position": "WR", "team": "Jets", "bye": 11, "points": 228}, "rashee rice": {"name": "Rashee Rice", "position": "WR", "team": "Chiefs", "bye": 9, "points": 227}, "troy franklin": {"name": "Troy Franklin", "position": "WR", "team": "Broncos", "bye": 9, "points": 226}, "jordan whittington": {"name": "Jordan Whittington", "position": "WR", "team": "Rams", "bye": 8, "points": 226}, "roman wilson": {"name": "Roman Wilson", "position": "WR", "team": "Steelers", "bye": 7, "points": 225}, "jalen nailor": {"name": "Jalen Nailor", "position": "WR", "team": "Vikings", "bye": 6, "points": 225}, "allen lazard": {"name": "Allen Lazard", "position": "WR", "team": "Jets", "bye": 11, "points": 225}, "wan'dale robinson": {"name": "Wan'Dale Robinson", "position": "WR", "team": "Giants", "bye": 14, "points": 224}, "darius slayton": {"name": "Darius Slayton", "position": "WR", "team": "Giants", "bye": 14, "points": 223}, "jahan dotson": {"name": "Jahan Dotson", "position": "WR", "team": "Eagles", "bye": 9, "points": 222}, "jerry jeudy": {"name": "Jerry Jeudy", "position": "WR", "team": "Browns", "bye": 7, "points": 222}, "adam thielen": {"name": "Adam Thielen", "position": "WR", "team": "Panthers", "bye": 5, "points": 222}, "romeo doubs": {"name": "Romeo Doubs", "position": "WR", "team": "Packers", "bye": 10, "points": 221}, "brandin cooks": {"name": "Brandin Cooks", "position": "WR", "team": "Cowboys", "bye": 10, "points": 220}, "tyler boyd": {"name": "Tyler Boyd", "position": "WR", "team": "Titans", "bye": 10, "points": 219}, "mike williams": {"name": "Mike Williams", "position": "WR", "team": "Jets", "bye": 11, "points": 218}, "noah brown": {"name": "Noah Brown", "position": "WR", "team": "Redskins", "bye": 12, "points": 218}, "demarcus robinson": {"name": "Demarcus Robinson", "position": "WR", "team": "Rams", "bye": 8, "points": 217}, "luke mccaffrey": {"name": "Luke McCaffrey", "position": "WR", "team": "Redskins", "bye": 12, "points": 217}, "elijah moore": {"name": "Elijah Moore", "position": "WR", "team": "Browns", "bye": 7, "points": 217}, "devaughn vele": {"name": "DeVaughn Vele", "position": "WR", "team": "Broncos", "bye": 9, "points": 216}, "tre tucker": {"name": "Tre Tucker", "position": "WR", "team": "Raiders", "bye": 12, "points": 216}, "tutu atwell": {"name": "Tutu Atwell", "position": "WR", "team": "Rams", "bye": 8, "points": 215}, "ray-ray mccloud": {"name": "Ray-Ray McCloud", "position": "WR", "team": "Falcons", "bye": 5, "points": 215}, "cedric tillman": {"name": "Cedric Tillman", "position": "WR", "team": "Browns", "bye": 7, "points": 214}, "joshua palmer": {"name": "Joshua Palmer", "position": "WR", "team": "Chargers", "bye": 12, "points": 214}, "luke schoonmaker": {"name": "Luke Schoonmaker", "position": "WR", "team": "Cowboys", "bye": 10, "points": 213}, "brock bowers": {"name": "Brock Bowers", "position": "TE", "team": "Raiders", "bye": 12, "points": 271}, "trey mcbride": {"name": "Trey McBride", "position": "TE", "team": "Cardinals", "bye": 8, "points": 254}, "travis kelce": {"name": "Travis Kelce", "position": "TE", "team": "Chiefs", "bye": 9, "points": 232}, "george kittle": {"name": "George Kittle", "position": "TE", "team": "49ers", "bye": 9, "points": 226}, "sam laporta": {"name": "Sam LaPorta", "position": "TE", "team": "Lions", "bye": 8, "points": 223}, "kyle pitts": {"name": "Kyle Pitts", "position": "TE", "team": "Falcons", "bye": 5, "points": 223}, "tj hockenson": {"name": "TJ Hockenson", "position": "TE", "team": "Vikings", "bye": 6, "points": 218}, "mark andrews": {"name": "Mark Andrews", "position": "TE", "team": "Ravens", "bye": 7, "points": 213}, "jake ferguson": {"name": "Jake Ferguson", "position": "TE", "team": "Cowboys", "bye": 10, "points": 212}, "dalton kincaid": {"name": "Dalton Kincaid", "position": "TE", "team": "Bills", "bye": 7, "points": 208}, "cade otton": {"name": "Cade Otton", "position": "TE", "team": "Buccaneers", "bye": 14, "points": 208}, "tucker kraft": {"name": "Tucker Kraft", "position": "TE", "team": "Packers", "bye": 10, "points": 204}, "jonnu smith": {"name": "Jonnu Smith", "position": "TE", "team": "Dolphins", "bye": 8, "points": 204}, "pat freiermuth": {"name": "Pat Freiermuth", "position": "TE", "team": "Steelers", "bye": 7, "points": 203}, "evan engram": {"name": "Evan Engram", "position": "TE", "team": "Jaguars", "bye": 8, "points": 203}, "david njoku": {"name": "David Njoku", "position": "TE", "team": "Browns", "bye": 7, "points": 201}, "dalton schultz": {"name": "Dalton Schultz", "position": "TE", "team": "Texans", "bye": 6, "points": 197}, "mike gesicki": {"name": "Mike Gesicki", "position": "TE", "team": "Bengals", "bye": 10, "points": 196}, "hunter henry": {"name": "Hunter Henry", "position": "TE", "team": "Patriots", "bye": 6, "points": 196}, "colby parkinson": {"name": "Colby Parkinson", "position": "TE", "team": "Rams", "bye": 8, "points": 194}, "darnell washington": {"name": "Darnell Washington", "position": "TE", "team": "Steelers", "bye": 7, "points": 192}, "taysom hill": {"name": "Taysom Hill", "position": "TE", "team": "Saints", "bye": 14, "points": 191}, "zach ertz": {"name": "Zach Ertz", "position": "TE", "team": "Redskins", "bye": 12, "points": 190}, "chigoziem okonkwo": {"name": "Chigoziem Okonkwo", "position": "TE", "team": "Titans", "bye": 10, "points": 188}, "will dissly": {"name": "Will Dissly", "position": "TE", "team": "Chargers", "bye": 12, "points": 188}, "juwan johnson": {"name": "Juwan Johnson", "position": "TE", "team": "Saints", "bye": 14, "points": 187}, "tyler conklin": {"name": "Tyler Conklin", "position": "TE", "team": "Jets", "bye": 11, "points": 186}, "cole kmet": {"name": "Cole Kmet", "position": "TE", "team": "Bears", "bye": 7, "points": 185}, "grant calcaterra": {"name": "Grant Calcaterra", "position": "TE", "team": "Eagles", "bye": 9, "points": 185}, "noah gray": {"name": "Noah Gray", "position": "TE", "team": "Chiefs", "bye": 9, "points": 184}, "erick all": {"name": "Erick All", "position": "TE", "team": "Bengals", "bye": 10, "points": 182}, "brenton strange": {"name": "Brenton Strange", "position": "TE", "team": "Jaguars", "bye": 8, "points": 181}, "theo johnson": {"name": "Theo Johnson", "position": "TE", "team": "Giants", "bye": 14, "points": 181}, "luke schoonmaker": {"name": "Luke Schoonmaker", "position": "TE", "team": "Cowboys", "bye": 10, "points": 180}, "josh whyle": {"name": "Josh Whyle", "position": "TE", "team": "Titans", "bye": 10, "points": 179}, "noah fant": {"name": "Noah Fant", "position": "TE", "team": "Seahawks", "bye": 8, "points": 178}, "josh oliver": {"name": "Josh Oliver", "position": "TE", "team": "Vikings", "bye": 6, "points": 177}, "isaiah likely": {"name": "Isaiah Likely", "position": "TE", "team": "Ravens", "bye": 7, "points": 176}, "hayden hurst": {"name": "Hayden Hurst", "position": "TE", "team": "Chargers", "bye": 12, "points": 175}, "dawson knox": {"name": "Dawson Knox", "position": "TE", "team": "Bills", "bye": 7, "points": 173}, "tyler higbee": {"name": "Tyler Higbee", "position": "TE", "team": "Rams", "bye": 8, "points": 172}, "luke musgrave": {"name": "Luke Musgrave", "position": "TE", "team": "Packers", "bye": 10, "points": 171}, "irv smith jr": {"name": "Irv Smith Jr", "position": "TE", "team": "Chiefs", "bye": 9, "points": 170}, "michael mayer": {"name": "Michael Mayer", "position": "TE", "team": "Raiders", "bye": 12, "points": 169}, "daniel bellinger": {"name": "Daniel Bellinger", "position": "TE", "team": "Giants", "bye": 14, "points": 167}};
 
 const PLAYER_NAMES = Object.keys(PLAYERS_DATA).sort();
@@ -2180,6 +2332,7 @@ function switchTab(tabName) {
     document.getElementById('roundTab').classList.remove('active');
     document.getElementById('rankingsTab').classList.remove('active');
     document.getElementById('assumptionsTab').classList.remove('active');
+    document.getElementById('rawdataTab').classList.remove('active');
 
     // Remove active class from all buttons
     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -2200,6 +2353,12 @@ function switchTab(tabName) {
     } else if (tabName === 'assumptions') {
         document.getElementById('assumptionsTab').classList.add('active');
         document.querySelectorAll('.tab-button')[3].classList.add('active');
+    } else if (tabName === 'rawdata') {
+        document.getElementById('rawdataTab').classList.add('active');
+        document.querySelectorAll('.tab-button')[4].classList.add('active');
+        if (!document.getElementById('rawdataBody').children.length) {
+            populateRawData('ALL');
+        }
     }
 }
 
@@ -2378,13 +2537,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let touchStartY = 0;
     let touchEndY = 0;
     
-    const tabOrder = ['draft', 'rankings', 'assumptions'];
+    const tabOrder = ['draft', 'round', 'rankings', 'assumptions', 'rawdata'];
     let currentTabIndex = 0;
-    
+
     function getCurrentTabIndex() {
         if (document.getElementById('draftTab').classList.contains('active')) return 0;
-        if (document.getElementById('rankingsTab').classList.contains('active')) return 1;
-        if (document.getElementById('assumptionsTab').classList.contains('active')) return 2;
+        if (document.getElementById('roundTab').classList.contains('active')) return 1;
+        if (document.getElementById('rankingsTab').classList.contains('active')) return 2;
+        if (document.getElementById('assumptionsTab').classList.contains('active')) return 3;
+        if (document.getElementById('rawdataTab').classList.contains('active')) return 4;
         return 0;
     }
     
