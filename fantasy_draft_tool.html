@@ -73,7 +73,7 @@
 
         .roster-slot {
             display: grid;
-            grid-template-columns: 80px 1fr 100px 80px;
+            grid-template-columns: 30px 80px 1fr 100px 80px;
             gap: 10px;
             align-items: center;
             padding: 15px;
@@ -81,6 +81,49 @@
             border-radius: 12px;
             border: 2px solid #e9ecef;
             transition: all 0.3s ease;
+        }
+
+        .roster-slot.hidden-row {
+            display: none;
+        }
+
+        .hide-row-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #adb5bd;
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .hide-row-btn:hover {
+            color: #e74c3c;
+        }
+
+        .show-all-btn {
+            display: none;
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            background: #f0f0f0;
+            border: 1px dashed #adb5bd;
+            border-radius: 8px;
+            color: #6c757d;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .show-all-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .show-all-btn.visible {
+            display: block;
         }
 
         .roster-slot:hover {
@@ -245,7 +288,7 @@
             }
 
             .roster-slot {
-                grid-template-columns: 60px 1fr 70px 60px;
+                grid-template-columns: 24px 60px 1fr 70px 60px;
                 padding: 12px;
                 gap: 8px;
             }
@@ -642,7 +685,7 @@
         /* Round View styles */
         .round-view-header {
             display: grid;
-            grid-template-columns: 60px 1fr 80px 80px;
+            grid-template-columns: 30px 60px 1fr 80px 80px;
             gap: 10px;
             padding: 8px 15px;
             font-size: 0.8rem;
@@ -661,7 +704,7 @@
         }
 
         .round-slot {
-            grid-template-columns: 60px 1fr 80px 80px;
+            grid-template-columns: 30px 60px 1fr 80px 80px;
         }
 
         .position-select {
@@ -685,11 +728,11 @@
 
         @media (max-width: 768px) {
             .round-slot {
-                grid-template-columns: 40px 1fr 60px 60px;
+                grid-template-columns: 24px 40px 1fr 60px 60px;
             }
 
             .round-view-header {
-                grid-template-columns: 40px 1fr 60px 60px;
+                grid-template-columns: 24px 40px 1fr 60px 60px;
                 font-size: 0.7rem;
             }
 
@@ -1129,6 +1172,7 @@
                         <button class="copy-btn" onclick="copyRoundScenario('a', 'b')">Copy to B →</button>
                     </div>
                     <div class="round-view-header">
+                        <span></span>
                         <span class="rv-col-round">Round</span>
                         <span class="rv-col-player">Player</span>
                         <span class="rv-col-points">Pts</span>
@@ -1269,6 +1313,7 @@
                         <button class="copy-btn" onclick="copyRoundScenario('b', 'a')">← Copy to A</button>
                     </div>
                     <div class="round-view-header">
+                        <span></span>
                         <span class="rv-col-round">Round</span>
                         <span class="rv-col-player">Player</span>
                         <span class="rv-col-points">Pts</span>
@@ -1678,7 +1723,43 @@ document.addEventListener('DOMContentLoaded', () => {
     setupScenarioInputs('rosterB');
     setupScenarioInputs('roundRosterA');
     setupScenarioInputs('roundRosterB');
+    setupRowToggling();
 });
+
+function setupRowToggling() {
+    document.querySelectorAll('.roster-grid').forEach(grid => {
+        // Add hide button as first child of each roster-slot
+        grid.querySelectorAll('.roster-slot').forEach(slot => {
+            const btn = document.createElement('button');
+            btn.className = 'hide-row-btn';
+            btn.innerHTML = '👁';
+            btn.title = 'Hide this row';
+            btn.addEventListener('click', () => {
+                slot.classList.add('hidden-row');
+                updateShowAllBtn(grid);
+            });
+            slot.insertBefore(btn, slot.firstChild);
+        });
+
+        // Add "Show All Rows" button after the grid
+        const showAllBtn = document.createElement('button');
+        showAllBtn.className = 'show-all-btn';
+        showAllBtn.textContent = '👁 Show All Rows';
+        showAllBtn.addEventListener('click', () => {
+            grid.querySelectorAll('.roster-slot.hidden-row').forEach(s => s.classList.remove('hidden-row'));
+            showAllBtn.classList.remove('visible');
+        });
+        grid.parentNode.insertBefore(showAllBtn, grid.nextSibling);
+    });
+}
+
+function updateShowAllBtn(grid) {
+    const btn = grid.nextElementSibling;
+    if (btn && btn.classList.contains('show-all-btn')) {
+        const hasHidden = grid.querySelector('.roster-slot.hidden-row');
+        btn.classList.toggle('visible', !!hasHidden);
+    }
+}
 
 function setupScenarioInputs(rosterId) {
     const roster = document.getElementById(rosterId);
