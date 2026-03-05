@@ -2224,7 +2224,7 @@ function displayRankings(rankings) {
     const tbody = document.getElementById('rankingsBody');
     tbody.innerHTML = rankings.map(player => `
         <tr>
-            <td><span class="rank-number">${player.rank}</span></td>
+            <td><span class="rank-number">${player.displayRank || player.rank}</span></td>
             <td>${getADP(player.rank)}</td>
             <td><span class="player-name">${player.name}</span></td>
             <td><span class="position-badge ${player.position}">${player.position}</span></td>
@@ -2267,8 +2267,8 @@ function filterPosition(position) {
         filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm));
     }
     
-    // Re-rank filtered results
-    filtered = filtered.map((p, index) => ({ ...p, rank: index + 1 }));
+    // Re-rank filtered results but keep original rank for ADP
+    filtered = filtered.map((p, index) => ({ ...p, displayRank: index + 1 }));
     displayRankings(filtered);
 }
 
@@ -2286,7 +2286,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm));
             }
             
-            filtered = filtered.map((p, index) => ({ ...p, rank: index + 1 }));
+            filtered = filtered.map((p, index) => ({ ...p, displayRank: index + 1 }));
             displayRankings(filtered);
         });
     }
