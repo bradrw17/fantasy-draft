@@ -1108,6 +1108,12 @@
                     </div>
 
                     <div class="assumption-card">
+                        <div class="assumption-label">Fumble Penalty</div>
+                        <input type="number" class="assumption-input" id="fumblePenalty" value="2" min="0" max="5" onchange="recalculateAllPoints()">
+                        <div class="assumption-help">-2 points per fumble lost</div>
+                    </div>
+
+                    <div class="assumption-card">
                         <div class="assumption-label">Rushing: Yards per Point</div>
                         <input type="number" class="assumption-input" id="rushYardsPerPt" value="10" min="1" max="50" onchange="recalculateAllPoints()">
                         <div class="assumption-help">1 pt per 10 rush yards</div>
@@ -1143,34 +1149,34 @@
     <script>
 // Raw player stats for recalculation (subset of key players - full data loaded from PLAYERS_DATA)
 const PLAYER_STATS_RAW = {
-  'josh allen': {passYds: 3800, passTD: 30, int: 12, rushYds: 590, td: 13, catches: 0, recYds: 0},
-  'lamar jackson': {passYds: 3800, passTD: 32, int: 6, rushYds: 850, td: 4, catches: 0, recYds: 0},
-  'baker mayfield': {passYds: 4300, passTD: 32, int: 15, rushYds: 280, td: 2, catches: 0, recYds: 0},
-  'jayden daniels': {passYds: 3700, passTD: 26, int: 9, rushYds: 880, td: 6, catches: 0, recYds: 0},
-  'joe burrow': {passYds: 4700, passTD: 38, int: 9, rushYds: 200, td: 2, catches: 0, recYds: 0},
-  'jalen hurts': {passYds: 3300, passTD: 21, int: 7, rushYds: 730, td: 13, catches: 0, recYds: 0},
-  'bijan robinson': {passYds: 0, passTD: 0, int: 0, rushYds: 1630, catches: 64, recYds: 480, td: 16},
-  'saquon barkley': {passYds: 0, passTD: 0, int: 0, rushYds: 1800, catches: 30, recYds: 240, td: 16},
-  'jahmyr gibbs': {passYds: 0, passTD: 0, int: 0, rushYds: 1270, catches: 60, recYds: 530, td: 12},
-  'chase brown': {passYds: 0, passTD: 0, int: 0, rushYds: 1160, catches: 65, recYds: 510, td: 12},
-  'tony pollard': {passYds: 0, passTD: 0, int: 0, rushYds: 1130, catches: 45, recYds: 330, td: 10},
-  'de\'von achane': {passYds: 0, passTD: 0, int: 0, rushYds: 980, catches: 81, recYds: 740, td: 11},
-  'jonathan taylor': {passYds: 0, passTD: 0, int: 0, rushYds: 1320, catches: 18, recYds: 140, td: 12},
-  'derrick henry': {passYds: 0, passTD: 0, int: 0, rushYds: 1420, catches: 18, recYds: 110, td: 14},
-  'james cook': {passYds: 0, passTD: 0, int: 0, rushYds: 1230, catches: 40, recYds: 320, td: 13},
-  'ja\'marr chase': {passYds: 0, passTD: 0, int: 0, rushYds: 30, catches: 98, recYds: 1580, td: 14},
-  'justin jefferson': {passYds: 0, passTD: 0, int: 0, rushYds: 15, catches: 96, recYds: 1540, td: 13},
-  'puka nacua': {passYds: 0, passTD: 0, int: 0, rushYds: 20, catches: 92, recYds: 1520, td: 12},
-  'malik nabers': {passYds: 0, passTD: 0, int: 0, rushYds: 25, catches: 94, recYds: 1440, td: 12},
-  'ceedee lamb': {passYds: 0, passTD: 0, int: 0, rushYds: 35, catches: 90, recYds: 1380, td: 12},
-  'amon-ra st. brown': {passYds: 0, passTD: 0, int: 0, rushYds: 40, catches: 88, recYds: 1340, td: 12},
-  'jaxon smith-njigba': {passYds: 0, passTD: 0, int: 0, rushYds: 10, catches: 86, recYds: 1320, td: 11},
-  'nico collins': {passYds: 0, passTD: 0, int: 0, rushYds: 20, catches: 84, recYds: 1380, td: 11},
-  'drake london': {passYds: 0, passTD: 0, int: 0, rushYds: 30, catches: 85, recYds: 1300, td: 12},
-  'trey mcbride': {passYds: 0, passTD: 0, int: 0, rushYds: 0, catches: 88, recYds: 1120, td: 8},
-  'brock bowers': {passYds: 0, passTD: 0, int: 0, rushYds: 0, catches: 84, recYds: 1080, td: 7},
-  'travis kelce': {passYds: 0, passTD: 0, int: 0, rushYds: 0, catches: 78, recYds: 920, td: 8},
-  'george kittle': {passYds: 0, passTD: 0, int: 0, rushYds: 0, catches: 74, recYds: 880, td: 7}
+  'josh allen': {passYds: 3800, passTD: 30, int: 12, rushYds: 590, td: 13, catches: 0, recYds: 0, fumbles: 5},
+  'lamar jackson': {passYds: 3800, passTD: 32, int: 6, rushYds: 850, td: 4, catches: 0, recYds: 0, fumbles: 5},
+  'baker mayfield': {passYds: 4300, passTD: 32, int: 15, rushYds: 280, td: 2, catches: 0, recYds: 0, fumbles: 4},
+  'jayden daniels': {passYds: 3700, passTD: 26, int: 9, rushYds: 880, td: 6, catches: 0, recYds: 0, fumbles: 5},
+  'joe burrow': {passYds: 4700, passTD: 38, int: 9, rushYds: 200, td: 2, catches: 0, recYds: 0, fumbles: 3},
+  'jalen hurts': {passYds: 3300, passTD: 21, int: 7, rushYds: 730, td: 13, catches: 0, recYds: 0, fumbles: 5},
+  'bijan robinson': {passYds: 0, passTD: 0, int: 0, rushYds: 1630, catches: 64, recYds: 480, td: 16, fumbles: 2},
+  'saquon barkley': {passYds: 0, passTD: 0, int: 0, rushYds: 1800, catches: 30, recYds: 240, td: 16, fumbles: 2},
+  'jahmyr gibbs': {passYds: 0, passTD: 0, int: 0, rushYds: 1270, catches: 60, recYds: 530, td: 12, fumbles: 1},
+  'chase brown': {passYds: 0, passTD: 0, int: 0, rushYds: 1160, catches: 65, recYds: 510, td: 12, fumbles: 2},
+  'tony pollard': {passYds: 0, passTD: 0, int: 0, rushYds: 1130, catches: 45, recYds: 330, td: 10, fumbles: 2},
+  'de\'von achane': {passYds: 0, passTD: 0, int: 0, rushYds: 980, catches: 81, recYds: 740, td: 11, fumbles: 1},
+  'jonathan taylor': {passYds: 0, passTD: 0, int: 0, rushYds: 1320, catches: 18, recYds: 140, td: 12, fumbles: 2},
+  'derrick henry': {passYds: 0, passTD: 0, int: 0, rushYds: 1420, catches: 18, recYds: 110, td: 14, fumbles: 3},
+  'james cook': {passYds: 0, passTD: 0, int: 0, rushYds: 1230, catches: 40, recYds: 320, td: 13, fumbles: 1},
+  'ja\'marr chase': {passYds: 0, passTD: 0, int: 0, rushYds: 30, catches: 98, recYds: 1580, td: 14, fumbles: 1},
+  'justin jefferson': {passYds: 0, passTD: 0, int: 0, rushYds: 15, catches: 96, recYds: 1540, td: 13, fumbles: 1},
+  'puka nacua': {passYds: 0, passTD: 0, int: 0, rushYds: 20, catches: 92, recYds: 1520, td: 12, fumbles: 1},
+  'malik nabers': {passYds: 0, passTD: 0, int: 0, rushYds: 25, catches: 94, recYds: 1440, td: 12, fumbles: 1},
+  'ceedee lamb': {passYds: 0, passTD: 0, int: 0, rushYds: 35, catches: 90, recYds: 1380, td: 12, fumbles: 1},
+  'amon-ra st. brown': {passYds: 0, passTD: 0, int: 0, rushYds: 40, catches: 88, recYds: 1340, td: 12, fumbles: 1},
+  'jaxon smith-njigba': {passYds: 0, passTD: 0, int: 0, rushYds: 10, catches: 86, recYds: 1320, td: 11, fumbles: 1},
+  'nico collins': {passYds: 0, passTD: 0, int: 0, rushYds: 20, catches: 84, recYds: 1380, td: 11, fumbles: 1},
+  'drake london': {passYds: 0, passTD: 0, int: 0, rushYds: 30, catches: 85, recYds: 1300, td: 12, fumbles: 1},
+  'trey mcbride': {passYds: 0, passTD: 0, int: 0, rushYds: 0, catches: 88, recYds: 1120, td: 8, fumbles: 1},
+  'brock bowers': {passYds: 0, passTD: 0, int: 0, rushYds: 0, catches: 84, recYds: 1080, td: 7, fumbles: 1},
+  'travis kelce': {passYds: 0, passTD: 0, int: 0, rushYds: 0, catches: 78, recYds: 920, td: 8, fumbles: 1},
+  'george kittle': {passYds: 0, passTD: 0, int: 0, rushYds: 0, catches: 74, recYds: 880, td: 7, fumbles: 1}
 };
 
 function calculatePlayerPoints(playerKey) {
@@ -1180,15 +1186,17 @@ function calculatePlayerPoints(playerKey) {
     const passYdsPt = parseFloat(document.getElementById('passYardsPerPt').value) || 25;
     const passTdPts = parseFloat(document.getElementById('passTdPts').value) || 4;
     const intPenalty = parseFloat(document.getElementById('intPenalty').value) || 2;
+    const fumblePenalty = parseFloat(document.getElementById('fumblePenalty').value) || 2;
     const rushYdsPt = parseFloat(document.getElementById('rushYardsPerPt').value) || 10;
     const ppr = parseFloat(document.getElementById('ppr').value) || 1;
     const recYdsPt = parseFloat(document.getElementById('recYardsPerPt').value) || 10;
     const tdPts = parseFloat(document.getElementById('tdPts').value) || 6;
-    
+
     let points = 0;
     points += stats.passYds / passYdsPt;
     points += stats.passTD * passTdPts;
     points -= stats.int * intPenalty;
+    points -= (stats.fumbles || 0) * fumblePenalty;
     points += stats.rushYds / rushYdsPt;
     points += stats.catches * ppr;
     points += stats.recYds / recYdsPt;
@@ -1233,6 +1241,7 @@ function resetAssumptions() {
     document.getElementById('passYardsPerPt').value = 25;
     document.getElementById('passTdPts').value = 4;
     document.getElementById('intPenalty').value = 2;
+    document.getElementById('fumblePenalty').value = 2;
     document.getElementById('rushYardsPerPt').value = 10;
     document.getElementById('ppr').value = 1;
     document.getElementById('recYardsPerPt').value = 10;
