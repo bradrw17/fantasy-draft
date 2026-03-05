@@ -746,6 +746,77 @@
             }
         }
 
+        /* Show Rounds Dropdown */
+        .round-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .show-rounds-wrapper {
+            position: relative;
+        }
+
+        .show-rounds-btn {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .show-rounds-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .rounds-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 5px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 100;
+            min-width: 160px;
+        }
+
+        .rounds-dropdown.open {
+            display: block;
+        }
+
+        .rounds-dropdown label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .rounds-dropdown label:hover {
+            background: #f0f0f0;
+        }
+
+        .rounds-dropdown input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #667eea;
+        }
+
         /* Raw Data Tab */
         .rawdata-container {
             background: white;
@@ -1198,10 +1269,16 @@
 
         <!-- Round View Tab -->
         <div id="roundTab" class="tab-content">
-            <div class="comparison-toggle">
-                <button class="toggle-btn active" id="roundComparisonToggle" onclick="toggleRoundComparisonMode()">
-                    ❌ Disable Comparison Mode
-                </button>
+            <div class="round-controls">
+                <div class="show-rounds-wrapper">
+                    <button class="show-rounds-btn" onclick="toggleRoundsDropdown()">Show Rounds ▾</button>
+                    <div class="rounds-dropdown" id="roundsDropdown"></div>
+                </div>
+                <div class="comparison-toggle" style="margin-bottom:0;">
+                    <button class="toggle-btn active" id="roundComparisonToggle" onclick="toggleRoundComparisonMode()">
+                        ❌ Disable Comparison Mode
+                    </button>
+                </div>
             </div>
 
             <div class="scenarios-container comparison-mode" id="roundScenariosContainer">
@@ -1219,125 +1296,7 @@
                         <span class="rv-col-pos">Pos</span>
                     </div>
                     <div class="roster-grid" id="roundRosterA">
-                        <div class="roster-slot round-slot" data-round="1">
-                            <div class="round-number">1</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="2">
-                            <div class="round-number">2</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="3">
-                            <div class="round-number">3</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="4">
-                            <div class="round-number">4</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="5">
-                            <div class="round-number">5</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="6">
-                            <div class="round-number">6</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="7">
-                            <div class="round-number">7</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
+                        <!-- Generated by JS -->
                     </div>
                     <div class="total-section">
                         <div class="total-label">Scenario A Total</div>
@@ -1360,125 +1319,7 @@
                         <span class="rv-col-pos">Pos</span>
                     </div>
                     <div class="roster-grid" id="roundRosterB">
-                        <div class="roster-slot round-slot" data-round="1">
-                            <div class="round-number">1</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="2">
-                            <div class="round-number">2</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="3">
-                            <div class="round-number">3</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="4">
-                            <div class="round-number">4</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="5">
-                            <div class="round-number">5</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="6">
-                            <div class="round-number">6</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
-                        <div class="roster-slot round-slot" data-round="7">
-                            <div class="round-number">7</div>
-                            <div class="player-input-wrapper">
-                                <input type="text" class="player-input" placeholder="Search player...">
-                                <div class="autocomplete-list hidden"></div>
-                                <div class="player-info"></div>
-                            </div>
-                            <div class="points-display">0</div>
-                            <select class="position-select">
-                                <option value="">--</option>
-                                <option value="QB">QB</option>
-                                <option value="RB">RB</option>
-                                <option value="WR">WR</option>
-                                <option value="TE">TE</option>
-                                <option value="BENCH">BENCH</option>
-                            </select>
-                        </div>
+                        <!-- Generated by JS -->
                     </div>
                     <div class="total-section">
                         <div class="total-label">Scenario B Total</div>
@@ -1873,9 +1714,78 @@ let activeListIndex = -1;
 document.addEventListener('DOMContentLoaded', () => {
     setupScenarioInputs('rosterA');
     setupScenarioInputs('rosterB');
+    initRoundView();
+    setupRowToggling();
+});
+
+const MAX_ROUNDS = 15;
+const DEFAULT_VISIBLE_ROUNDS = 7;
+
+function initRoundView() {
+    // Generate round slots for both scenarios
+    generateRoundSlots('roundRosterA');
+    generateRoundSlots('roundRosterB');
+
+    // Build the dropdown checkboxes
+    const dropdown = document.getElementById('roundsDropdown');
+    let html = '';
+    for (let r = 1; r <= MAX_ROUNDS; r++) {
+        const checked = r <= DEFAULT_VISIBLE_ROUNDS ? 'checked' : '';
+        html += `<label><input type="checkbox" value="${r}" ${checked} onchange="toggleRoundVisibility(${r}, this.checked)"> Round ${r}</label>`;
+    }
+    dropdown.innerHTML = html;
+
+    // Wire up inputs and apply initial visibility
     setupScenarioInputs('roundRosterA');
     setupScenarioInputs('roundRosterB');
-    setupRowToggling();
+    for (let r = DEFAULT_VISIBLE_ROUNDS + 1; r <= MAX_ROUNDS; r++) {
+        toggleRoundVisibility(r, false);
+    }
+}
+
+function generateRoundSlots(rosterId) {
+    const grid = document.getElementById(rosterId);
+    let html = '';
+    for (let r = 1; r <= MAX_ROUNDS; r++) {
+        html += `
+        <div class="roster-slot round-slot" data-round="${r}">
+            <div class="round-number">${r}</div>
+            <div class="player-input-wrapper">
+                <input type="text" class="player-input" placeholder="Search player...">
+                <div class="autocomplete-list hidden"></div>
+                <div class="player-info"></div>
+            </div>
+            <div class="points-display">0</div>
+            <select class="position-select">
+                <option value="">--</option>
+                <option value="QB">QB</option>
+                <option value="RB">RB</option>
+                <option value="WR">WR</option>
+                <option value="TE">TE</option>
+                <option value="BENCH">BENCH</option>
+            </select>
+        </div>`;
+    }
+    grid.innerHTML = html;
+}
+
+function toggleRoundsDropdown() {
+    const dropdown = document.getElementById('roundsDropdown');
+    dropdown.classList.toggle('open');
+}
+
+function toggleRoundVisibility(round, visible) {
+    document.querySelectorAll(`#roundRosterA .round-slot[data-round="${round}"], #roundRosterB .round-slot[data-round="${round}"]`).forEach(slot => {
+        slot.style.display = visible ? '' : 'none';
+    });
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    const wrapper = document.querySelector('.show-rounds-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+        document.getElementById('roundsDropdown').classList.remove('open');
+    }
 });
 
 function setupRowToggling() {
