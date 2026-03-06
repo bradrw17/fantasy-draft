@@ -2843,18 +2843,112 @@ function switchTab(tabName) {
 }
 
 function populateRankings() {
-    // Rank all players by projected fantasy points (Rotowire 2026 projections)
-    const rankings = Object.values(PLAYERS_DATA)
-        .filter(p => p.points > 0)
-        .sort((a, b) => b.points - a.points)
-        .map((p, index) => ({
-            rank: index + 1,
+    // FantasyPros 2026 consensus ADP order
+    const adpOrder = [
+        'ja\'marr chase', 'puka nacua', 'bijan robinson', 'jaxon smith-njigba', 'jahmyr gibbs',
+        'ceedee lamb', 'amon-ra st. brown', 'christian mccaffrey', 'justin jefferson', 'jonathan taylor',
+        'de\'von achane', 'drake london', 'malik nabers', 'nico collins', 'george pickens',
+        'rashee rice', 'chris olave', 'james cook', 'trey mcbride', 'brock bowers',
+        'a.j. brown', 'ashton jeanty', 'omarion hampton', 'josh allen', 'chase brown',
+        'tetairoa mcmillan', 'drake maye', 'lamar jackson', 'tee higgins', 'saquon barkley',
+        'garrett wilson', 'bucky irving', 'jeremiyah love', 'josh jacobs', 'ladd mcconkey',
+        'joe burrow', 'zay flowers', 'breece hall', 'davante adams', 'jameson williams',
+        'derrick henry', 'jaylen waddle', 'devonta smith', 'luther burden', 'terry mclaurin',
+        'kenneth walker', 'kyren williams', 'mike evans', 'colston loveland', 'rj harvey',
+        'javonte williams', 'courtland sutton', 'travis etienne', 'treveyon henderson', 'jayden daniels',
+        'emeka egbuka', 'cam skattebo', 'harold fannin', 'christian watson', 'jalen hurts',
+        'dk metcalf', 'tyler warren', 'quinshon judkins', 'jaxson dart', 'jakobi meyers',
+        'rome odunze', 'd\'andre swift', 'tucker kraft', 'ricky pearsall', 'jaylen warren',
+        'brian thomas', 'justin herbert', 'chris godwin', 'stefon diggs', 'kyle monangai',
+        'marvin harrison', 'trevor lawrence', 'caleb williams', 'rico dowdle', 'michael wilson',
+        'tony pollard', 'rhamondre stevenson', 'michael pittman', 'sam laporta', 'kyle pitts',
+        'dak prescott', 'brock purdy', 'patrick mahomes', 'wan\'dale robinson', 'bhayshul tuten',
+        'carnell tate', 'blake corum', 'jordan addison', 'james conner', 'david montgomery',
+        'chuba hubbard', 'khalil shakir', 'jauan jennings', 'alvin kamara', 'trey benson',
+        'alec pierce', 'jordyn tyson', 'dj moore', 'dalton kincaid', 'oronde gadsden',
+        'quentin johnston', 'matthew stafford', 'bo nix', 'jake ferguson', 'jordan love',
+        'zach charbonnet', 'aaron jones', 'juwan johnson', 'brenton strange', 'jared goff',
+        'woody marks', 'parker washington', 'baker mayfield', 'tyreek hill', 'jadarian price',
+        'jayden higgins', 'xavier worthy', 'tyler shough', 'dylan sampson', 'jacory croskey-merritt',
+        'deebo samuel', 'jayden reed', 'c.j. stroud', 'malik willis', 'josh downs',
+        'kenneth gainwell', 'dalton schultz', 'emmett johnson', 'tyler allgeier', 'george kittle',
+        'braelon allen', 'tyjae spears', 'sam darnold', 'travis hunter', 'tyrone tracy',
+        'kyler murray', 'jerry jeudy', 'troy franklin', 'jalen coker', 'dallas goedert',
+        'jordan mason', 'rachaad white', 'cam ward', 'adonai mitchell', 'hunter henry',
+        'j.k. dobbins', 'bryce young', 'chimere dike', 'rashid shaheed', 'jonah coleman',
+        'travis kelce', 'devin neal', 'brandon aiyuk', 'mark andrews', 'matthew golden',
+        'isiah pacheco', 'tre\' harris', 'isaiah likely', 'makai lemon', 'tank bigsby',
+        'romeo doubs', 'jaylin noel', 'elic ayomanor', 'kayshon boutte', 'kaleb johnson',
+        'kimani vidal', 'pat bryant', 'keaton mitchell', 'mike washington', 'theo johnson',
+        'brian robinson', 'j.j. mccarthy', 'tre tucker', 'darnell mooney', 'kendre miller',
+        'fernando mendoza', 'michael penix', 'daniel jones', 'marvin mims', 'ryan flournoy',
+        'aj barner', 't.j. hockenson', 'jalen mcmillan', 'joe mixon', 'isaiah davis',
+        'mason taylor', 'keon coleman', 'jaylen wright', 'kaytron allen', 'emanuel wilson',
+        'calvin ridley', 'mack hollins', 'brashard smith', 'terrance ferguson', 'isaac teslaa',
+        'rashod bateman', 'xavier legette', 'jonathon brooks', 'kyle williams', 'sean tucker',
+        'najee harris', 'ray davis', 'dontayvion wicks', 'keenan allen', 'kenyon sadiq',
+        'chris rodriguez', 'chris brazzell', 'jerome ford', 'gunnar helm', 'nicholas singleton',
+        'cooper kupp', 'darius slayton', 'tory horton', 'chig okonkwo', 'elijah sarratt',
+        'david njoku', 'ty johnson', 'isaiah bond', 'ollie gordon', 'demond claiborne',
+        'jack bech', 'tank dell', 'colby parkinson', 'jaleel mclaughlin', 'evan engram',
+        'pat freiermuth', 'devaughn vele', 'cade otton', 'shedeur sanders', 'andrei iosivas',
+        'eli stowers', 'denzel boston', 'zachariah branch', 'jalen royals', 'germie bernard',
+        'konata mumpfield', 'jacoby brissett', 'kc concepcion', 'luke mccaffrey', 'christian kirk',
+        'jaydon blue', 'calvin austin', 'isaac guerendo', 'cedric tillman', 'malik davis',
+        'malik washington', 'tua tagovailoa', 'george holani', 'lequint allen', 'dont\'e thornton',
+        'audric estime', 'dj giddens', 'mac jones', 'devin singletary', 'justice hill',
+        'tyquan thornton', 'chris brooks', 'samaje perine', 'noah gray', 'trevor etienne',
+        'olamide zaccheaus', 'mike gesicki', 'john metchie', 'jake tonges', 'marshawn lloyd',
+        'tez johnson', 'jarquez hunter', 'michael carter', 'darren waller', 'emari demercado',
+        'tahj brooks', 'omar cooper', 'jaylin lane', 'will shipley', 'joshua palmer',
+        'kareem hunt', 'jalen nailor', 'aaron rodgers', 'austin ekeler', 'nick chubb',
+        'ben sinnott', 'anthony richardson', 'demario douglas', 'jordan james', 'xavier hutchinson',
+        'john bates', 'geno smith', 'elijah arroyo', 'malachi fields', 'michael mayer',
+        'jawhar jordan', 'joe milton', 'raheim sanders', 'antonio gibson', 'dameon pierce',
+        'darnell washington', 'antonio williams', 'adam randall', 'chris bell', 'ty simpson',
+        'le\'veon moss', 'j\'mari taylor', 'ja\'kobi lane', 'ted hurst', 'justin fields',
+        'tyler higbee', 'ja\'tavion sanders', 'greg dulcich', 'cole kmet', 'noah fant',
+        'jonnu smith', 'skyler bell', 'tyrod taylor', 'deshaun watson', 'jameis winston',
+        'marcus mariota', 'luke musgrave', 'dawson knox', 'elijah higgins', 'zach ertz',
+        'michael trigg', 'max klare', 'taysom hill'
+    ];
+
+    const rankings = [];
+    let rank = 1;
+
+    // Add players in ADP order with Rotowire projected points
+    adpOrder.forEach(playerKey => {
+        if (PLAYERS_DATA[playerKey]) {
+            const p = PLAYERS_DATA[playerKey];
+            rankings.push({
+                rank: rank++,
+                name: p.name,
+                position: p.position,
+                team: p.team,
+                bye: p.bye,
+                points: p.points
+            });
+        }
+    });
+
+    // Add remaining players not in ADP list, sorted by points
+    const remainingPlayers = Object.values(PLAYERS_DATA)
+        .filter(p => {
+            const key = p.name.toLowerCase();
+            return !adpOrder.includes(key) && p.points > 0;
+        })
+        .sort((a, b) => b.points - a.points);
+
+    remainingPlayers.forEach(p => {
+        rankings.push({
+            rank: rank++,
             name: p.name,
             position: p.position,
             team: p.team,
             bye: p.bye,
             points: p.points
-        }));
+        });
+    });
 
     allRankings = rankings;
     displayRankings(rankings);
