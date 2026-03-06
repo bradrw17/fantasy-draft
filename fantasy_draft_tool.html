@@ -146,7 +146,7 @@
         .position-label.RB { border-color: #3498db; color: #3498db; }
         .position-label.WR { border-color: #2ecc71; color: #2ecc71; }
         .position-label.TE { border-color: #f39c12; color: #f39c12; }
-        .position-label.BENCH { border-color: #95a5a6; color: #95a5a6; }
+        .position-label.FLEX { border-color: #9b59b6; color: #9b59b6; }
 
         .player-input-wrapper {
             position: relative;
@@ -1158,8 +1158,8 @@
                     <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
                 </div>
 
-                <div class="roster-slot" data-position="BENCH">
-                    <div class="position-label BENCH">BENCH</div>
+                <div class="roster-slot" data-position="FLEX">
+                    <div class="position-label FLEX">FLEX</div>
                     <div class="player-input-wrapper">
                         <input type="text" class="player-input" placeholder="Search player...">
                         <div class="autocomplete-list hidden"></div>
@@ -1251,8 +1251,8 @@
                     <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
                 </div>
 
-                <div class="roster-slot" data-position="BENCH">
-                    <div class="position-label BENCH">BENCH</div>
+                <div class="roster-slot" data-position="FLEX">
+                    <div class="position-label FLEX">FLEX</div>
                     <div class="player-input-wrapper">
                         <input type="text" class="player-input" placeholder="Search player...">
                         <div class="autocomplete-list hidden"></div>
@@ -2332,7 +2332,7 @@ function generateRoundSlots(rosterId) {
                 <option value="RB">RB</option>
                 <option value="WR">WR</option>
                 <option value="TE">TE</option>
-                <option value="BENCH">BENCH</option>
+                <option value="FLEX">FLEX</option>
             </select>
         </div>`;
     }
