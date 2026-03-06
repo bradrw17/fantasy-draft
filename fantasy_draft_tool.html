@@ -1058,10 +1058,10 @@
 
         <div class="main-card">
             <div class="tab-nav">
-                <button class="tab-button active" onclick="switchTab('draft')">
+                <button class="tab-button" onclick="switchTab('draft')">
                     🏈 Roster View
                 </button>
-                <button class="tab-button" onclick="switchTab('round')">
+                <button class="tab-button active" onclick="switchTab('round')">
                     📋 Round View
                 </button>
                 <button class="tab-button" id="rankingsTabBtn" onclick="switchTab('rankings')">
@@ -1076,7 +1076,7 @@
             </div>
 
             <!-- Draft Tab -->
-            <div id="draftTab" class="tab-content active">
+            <div id="draftTab" class="tab-content">
                 <div class="comparison-toggle">
                     <button class="toggle-btn active" id="comparisonToggle" onclick="toggleComparisonMode()">
                         ❌ Disable Comparison Mode
@@ -1297,7 +1297,7 @@
 </div>
 
         <!-- Round View Tab -->
-        <div id="roundTab" class="tab-content">
+        <div id="roundTab" class="tab-content active">
             <div class="round-controls">
                 <div class="show-rounds-wrapper">
                     <button class="show-rounds-btn" onclick="toggleRoundsDropdown()">Show Rounds ▾</button>
@@ -2418,8 +2418,22 @@ function handleInput(e) {
         return;
     }
 
-    // Filter players
-    const matches = PLAYER_NAMES.filter(name => name.includes(value)).slice(0, 8);
+    // Get position filter from roster slot (RB slot only shows RBs, etc.)
+    const slot = input.closest('.roster-slot');
+    const slotPosition = slot ? slot.dataset.position : null;
+
+    // Filter players by name match and position
+    const matches = PLAYER_NAMES.filter(name => {
+        if (!name.includes(value)) return false;
+        if (slotPosition && PLAYERS_DATA[name]) {
+            const playerPos = PLAYERS_DATA[name].position;
+            if (slotPosition === 'FLEX') {
+                return playerPos === 'RB' || playerPos === 'WR' || playerPos === 'TE';
+            }
+            return playerPos === slotPosition;
+        }
+        return true;
+    }).slice(0, 8);
 
     if (matches.length === 0) {
         autocompleteList.classList.add('hidden');
