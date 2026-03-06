@@ -147,6 +147,24 @@
         .position-label.WR { border-color: #2ecc71; color: #2ecc71; }
         .position-label.TE { border-color: #f39c12; color: #f39c12; }
         .position-label.FLEX { border-color: #9b59b6; color: #9b59b6; }
+        .position-label.SF { border-color: #e67e22; color: #e67e22; }
+
+        .show-lineup-wrapper { position: relative; display: inline-block; }
+        .show-lineup-btn {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .show-lineup-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
 
         .player-input-wrapper {
             position: relative;
@@ -1077,10 +1095,16 @@
 
             <!-- Draft Tab -->
             <div id="draftTab" class="tab-content">
-                <div class="comparison-toggle">
-                    <button class="toggle-btn active" id="comparisonToggle" onclick="toggleComparisonMode()">
-                        ❌ Disable Comparison Mode
-                    </button>
+                <div class="round-controls">
+                    <div class="show-lineup-wrapper">
+                        <button class="show-lineup-btn" onclick="toggleLineupDropdown()">Show Lineup ▾</button>
+                        <div class="rounds-dropdown" id="lineupDropdown"></div>
+                    </div>
+                    <div class="comparison-toggle" style="margin-bottom:0;">
+                        <button class="toggle-btn active" id="comparisonToggle" onclick="toggleComparisonMode()">
+                            ❌ Disable Comparison Mode
+                        </button>
+                    </div>
                 </div>
 
                 <div class="scenarios-container comparison-mode" id="scenariosContainer">
@@ -1167,6 +1191,39 @@
                     </div>
                     <div class="points-display">195</div>
                     <input type="number" class="round-input" placeholder="Rd" min="1" max="20" value="5">
+                </div>
+
+                <div class="roster-slot" data-position="WR" style="display:none">
+                    <div class="position-label WR">WR</div>
+                    <div class="player-input-wrapper">
+                        <input type="text" class="player-input" placeholder="Search player...">
+                        <div class="autocomplete-list hidden"></div>
+                        <div class="player-info"></div>
+                    </div>
+                    <div class="points-display">0</div>
+                    <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
+                </div>
+
+                <div class="roster-slot" data-position="FLEX" style="display:none">
+                    <div class="position-label FLEX">FLEX</div>
+                    <div class="player-input-wrapper">
+                        <input type="text" class="player-input" placeholder="Search player...">
+                        <div class="autocomplete-list hidden"></div>
+                        <div class="player-info"></div>
+                    </div>
+                    <div class="points-display">0</div>
+                    <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
+                </div>
+
+                <div class="roster-slot" data-position="SF" style="display:none">
+                    <div class="position-label SF">SF</div>
+                    <div class="player-input-wrapper">
+                        <input type="text" class="player-input" placeholder="Search player...">
+                        <div class="autocomplete-list hidden"></div>
+                        <div class="player-info"></div>
+                    </div>
+                    <div class="points-display">0</div>
+                    <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
                 </div>
             </div>
 
@@ -1260,6 +1317,39 @@
                     </div>
                     <div class="points-display">151</div>
                     <input type="number" class="round-input" placeholder="Rd" min="1" max="20" value="7">
+                </div>
+
+                <div class="roster-slot" data-position="WR" style="display:none">
+                    <div class="position-label WR">WR</div>
+                    <div class="player-input-wrapper">
+                        <input type="text" class="player-input" placeholder="Search player...">
+                        <div class="autocomplete-list hidden"></div>
+                        <div class="player-info"></div>
+                    </div>
+                    <div class="points-display">0</div>
+                    <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
+                </div>
+
+                <div class="roster-slot" data-position="FLEX" style="display:none">
+                    <div class="position-label FLEX">FLEX</div>
+                    <div class="player-input-wrapper">
+                        <input type="text" class="player-input" placeholder="Search player...">
+                        <div class="autocomplete-list hidden"></div>
+                        <div class="player-info"></div>
+                    </div>
+                    <div class="points-display">0</div>
+                    <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
+                </div>
+
+                <div class="roster-slot" data-position="SF" style="display:none">
+                    <div class="position-label SF">SF</div>
+                    <div class="player-input-wrapper">
+                        <input type="text" class="player-input" placeholder="Search player...">
+                        <div class="autocomplete-list hidden"></div>
+                        <div class="player-info"></div>
+                    </div>
+                    <div class="points-display">0</div>
+                    <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
                 </div>
             </div>
 
@@ -2285,6 +2375,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupScenarioInputs('rosterA');
     setupScenarioInputs('rosterB');
     initRoundView();
+    initLineupDropdown();
     setupRowToggling();
 });
 
@@ -2346,6 +2437,44 @@ function prefillRoundSlot(rosterId, round, playerKey) {
     if (posSelect) posSelect.value = player.position;
 }
 
+// --- Show Lineup Dropdown for Roster View ---
+const LINEUP_SLOTS = [
+    { label: 'QB', defaultOn: true },
+    { label: 'RB 1', defaultOn: true },
+    { label: 'RB 2', defaultOn: true },
+    { label: 'WR 1', defaultOn: true },
+    { label: 'WR 2', defaultOn: true },
+    { label: 'WR 3', defaultOn: false },
+    { label: 'TE', defaultOn: true },
+    { label: 'FLEX 1', defaultOn: true },
+    { label: 'FLEX 2', defaultOn: false },
+    { label: 'SF', defaultOn: false },
+];
+
+function initLineupDropdown() {
+    const dropdown = document.getElementById('lineupDropdown');
+    let html = '';
+    LINEUP_SLOTS.forEach((slot, i) => {
+        const checked = slot.defaultOn ? 'checked' : '';
+        html += `<label><input type="checkbox" value="${i}" ${checked} onchange="toggleLineupSlot(${i}, this.checked)"> ${slot.label}</label>`;
+    });
+    dropdown.innerHTML = html;
+}
+
+function toggleLineupDropdown() {
+    document.getElementById('lineupDropdown').classList.toggle('open');
+}
+
+function toggleLineupSlot(index, visible) {
+    ['rosterA', 'rosterB'].forEach(id => {
+        const slots = document.querySelectorAll(`#${id} .roster-slot`);
+        if (slots[index]) {
+            slots[index].style.display = visible ? '' : 'none';
+        }
+    });
+    calculateTotal();
+}
+
 function generateRoundSlots(rosterId) {
     const grid = document.getElementById(rosterId);
     let html = '';
@@ -2383,11 +2512,15 @@ function toggleRoundVisibility(round, visible) {
     });
 }
 
-// Close dropdown when clicking outside
+// Close dropdowns when clicking outside
 document.addEventListener('click', (e) => {
-    const wrapper = document.querySelector('.show-rounds-wrapper');
-    if (wrapper && !wrapper.contains(e.target)) {
+    const roundsWrapper = document.querySelector('.show-rounds-wrapper');
+    if (roundsWrapper && !roundsWrapper.contains(e.target)) {
         document.getElementById('roundsDropdown').classList.remove('open');
+    }
+    const lineupWrapper = document.querySelector('.show-lineup-wrapper');
+    if (lineupWrapper && !lineupWrapper.contains(e.target)) {
+        document.getElementById('lineupDropdown').classList.remove('open');
     }
 });
 
@@ -2462,6 +2595,9 @@ function handleInput(e) {
             const playerPos = PLAYERS_DATA[name].position;
             if (slotPosition === 'FLEX') {
                 return playerPos === 'RB' || playerPos === 'WR' || playerPos === 'TE';
+            }
+            if (slotPosition === 'SF') {
+                return playerPos === 'QB' || playerPos === 'RB' || playerPos === 'WR' || playerPos === 'TE';
             }
             return playerPos === slotPosition;
         }
