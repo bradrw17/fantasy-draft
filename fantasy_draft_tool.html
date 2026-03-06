@@ -2317,6 +2317,19 @@ function initRoundView() {
     prefillRoundSlot('roundRosterA', 6, "d'andre swift");
     prefillRoundSlot('roundRosterB', 2, 'james cook');
     prefillRoundSlot('roundRosterB', 6, 'tyler warren');
+
+    // Hide all rows except rounds 2 and 6 by default
+    ['roundRosterA', 'roundRosterB'].forEach(id => {
+        const grid = document.getElementById(id);
+        grid.querySelectorAll('.round-slot').forEach(slot => {
+            const round = parseInt(slot.dataset.round);
+            if (round !== 2 && round !== 6) {
+                slot.classList.add('hidden-row');
+            }
+        });
+        updateShowAllBtn(grid);
+    });
+
     calculateRoundTotal();
 }
 
