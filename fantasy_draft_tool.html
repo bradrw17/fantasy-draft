@@ -2311,6 +2311,26 @@ function initRoundView() {
     for (let r = DEFAULT_VISIBLE_ROUNDS + 1; r <= MAX_ROUNDS; r++) {
         toggleRoundVisibility(r, false);
     }
+
+    // Default players
+    prefillRoundSlot('roundRosterA', 2, 'trey mcbride');
+    prefillRoundSlot('roundRosterA', 6, "d'andre swift");
+    prefillRoundSlot('roundRosterB', 2, 'james cook');
+    prefillRoundSlot('roundRosterB', 6, 'tyler warren');
+    calculateRoundTotal();
+}
+
+function prefillRoundSlot(rosterId, round, playerKey) {
+    const slot = document.querySelector(`#${rosterId} .round-slot[data-round="${round}"]`);
+    if (!slot) return;
+    const player = PLAYERS_DATA[playerKey];
+    if (!player) return;
+    const wrapper = slot.querySelector('.player-input-wrapper');
+    wrapper.querySelector('.player-input').value = player.name;
+    wrapper.querySelector('.player-info').textContent = `${player.team} | Bye: ${player.bye}`;
+    slot.querySelector('.points-display').textContent = player.points || 0;
+    const posSelect = slot.querySelector('.position-select');
+    if (posSelect) posSelect.value = player.position;
 }
 
 function generateRoundSlots(rosterId) {
