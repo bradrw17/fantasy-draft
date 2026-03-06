@@ -1105,6 +1105,7 @@
                             ❌ Disable Comparison Mode
                         </button>
                     </div>
+                    <button class="show-rounds-btn" onclick="clearAllRosterSlots()">🗑 Clear Lineup</button>
                 </div>
 
                 <div class="scenarios-container comparison-mode" id="scenariosContainer">
@@ -1398,6 +1399,7 @@
                         ❌ Disable Comparison Mode
                     </button>
                 </div>
+                <button class="show-rounds-btn" onclick="clearAllRoundSlots()">🗑 Clear Lineup</button>
             </div>
 
             <div class="scenarios-container comparison-mode" id="roundScenariosContainer">
@@ -2778,6 +2780,16 @@ function updateComparisonSummary(totalA, totalB) {
 function clearAllPlayers() {
     clearScenario('a');
     clearScenario('b');
+}
+
+function clearAllRosterSlots() {
+    clearScenario('a');
+    clearScenario('b');
+}
+
+function clearAllRoundSlots() {
+    clearRoundScenario('a');
+    clearRoundScenario('b');
 }
 
 function clearScenario(scenario) {
