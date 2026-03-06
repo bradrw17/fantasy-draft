@@ -1095,17 +1095,17 @@
 
             <!-- Draft Tab -->
             <div id="draftTab" class="tab-content">
-                <div class="round-controls">
+                <div class="round-controls" style="justify-content:center;">
                     <div class="show-lineup-wrapper">
                         <button class="show-lineup-btn" onclick="toggleLineupDropdown()">Show Lineup ▾</button>
                         <div class="rounds-dropdown" id="lineupDropdown"></div>
                     </div>
-                    <div class="comparison-toggle" style="margin-bottom:0;">
+                    <button class="show-rounds-btn" onclick="clearAllRosterSlots()">🗑 Clear Lineup</button>
+                    <div class="comparison-toggle" style="margin:0 auto;">
                         <button class="toggle-btn active" id="comparisonToggle" onclick="toggleComparisonMode()">
                             ❌ Disable Comparison Mode
                         </button>
                     </div>
-                    <button class="show-rounds-btn" onclick="clearAllRosterSlots()">🗑 Clear Lineup</button>
                 </div>
 
                 <div class="scenarios-container comparison-mode" id="scenariosContainer">
@@ -1389,17 +1389,17 @@
 
         <!-- Round View Tab -->
         <div id="roundTab" class="tab-content active">
-            <div class="round-controls">
+            <div class="round-controls" style="justify-content:center;">
                 <div class="show-rounds-wrapper">
                     <button class="show-rounds-btn" onclick="toggleRoundsDropdown()">Show Rounds ▾</button>
                     <div class="rounds-dropdown" id="roundsDropdown"></div>
                 </div>
-                <div class="comparison-toggle" style="margin-bottom:0;">
+                <button class="show-rounds-btn" onclick="clearAllRoundSlots()">🗑 Clear Lineup</button>
+                <div class="comparison-toggle" style="margin:0 auto;">
                     <button class="toggle-btn active" id="roundComparisonToggle" onclick="toggleRoundComparisonMode()">
                         ❌ Disable Comparison Mode
                     </button>
                 </div>
-                <button class="show-rounds-btn" onclick="clearAllRoundSlots()">🗑 Clear Lineup</button>
             </div>
 
             <div class="scenarios-container comparison-mode" id="roundScenariosContainer">
