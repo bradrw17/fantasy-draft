@@ -1013,6 +1013,74 @@
             border-color: #667eea;
         }
 
+        /* Source selector bar */
+        .source-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 6px;
+            background: rgba(102, 126, 234, 0.08);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+        .source-tab {
+            padding: 8px 18px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .source-tab:hover { color: #667eea; }
+        .source-tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+        }
+
+        /* Manual edit notice */
+        .manual-edit-notice {
+            background: rgba(230, 126, 34, 0.1);
+            border: 1px solid rgba(230, 126, 34, 0.3);
+            border-radius: 8px;
+            padding: 10px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .manual-edit-notice span { color: #e67e22; font-weight: 600; font-size: 0.9rem; }
+        .reset-manual-btn {
+            padding: 6px 14px;
+            background: #e67e22;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .reset-manual-btn:hover { background: #d35400; }
+
+        /* Editable cells */
+        td.editable { cursor: pointer; position: relative; }
+        td.editable:hover { background: rgba(102, 126, 234, 0.08); }
+        td.editable input {
+            width: 100%;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: inherit;
+            font-family: inherit;
+            text-align: center;
+            outline: none;
+        }
+
         @media (max-width: 768px) {
             .rankings-table {
                 font-size: 0.85rem;
@@ -1475,6 +1543,9 @@
 
         <!-- Rankings Tab -->
         <div id="rankingsTab" class="tab-content">
+            <div class="source-selector" id="rankingsSourceSelector">
+                <button class="source-tab active" onclick="switchRankingsSource('fantasypros')">FantasyPros</button>
+            </div>
             <div class="search-filter">
                 <input type="text" class="filter-input" id="searchInput" placeholder="Search player name...">
                 <button class="filter-button active" onclick="filterPosition('ALL')">All</button>
@@ -1592,6 +1663,14 @@
                     <button class="filter-button" onclick="filterRawData('WR', event)">WR</button>
                     <button class="filter-button" onclick="filterRawData('TE', event)">TE</button>
                 </div>
+                <div class="source-selector" id="statsSourceSelector">
+                    <button class="source-tab active" onclick="switchStatsSource('rotowire')">Rotowire</button>
+                    <button class="source-tab" onclick="switchStatsSource('manual')">Manual</button>
+                </div>
+                <div class="manual-edit-notice" id="manualEditNotice" style="display:none;">
+                    <span>Manual Mode — Click any stat cell to edit. Changes recalculate points automatically.</span>
+                    <button class="reset-manual-btn" onclick="resetManualStats()">Reset to Rotowire</button>
+                </div>
                 <div style="overflow-x: auto;">
                     <table class="rankings-table rawdata-table">
                         <thead>
@@ -1608,8 +1687,84 @@
     </div>
 
     <script>
-// Raw player stats for recalculation (subset of key players - full data loaded from PLAYERS_DATA)
-const PLAYER_STATS_RAW = {
+// Rankings source registry — add new sources here (e.g., ESPN, Yahoo)
+const RANKINGS_SOURCES = {
+    fantasypros: {
+        label: 'FantasyPros',
+        adpOrder: [
+            'ja\'marr chase', 'puka nacua', 'bijan robinson', 'jaxon smith-njigba', 'jahmyr gibbs',
+            'ceedee lamb', 'amon-ra st. brown', 'christian mccaffrey', 'justin jefferson', 'jonathan taylor',
+            'de\'von achane', 'drake london', 'malik nabers', 'nico collins', 'george pickens',
+            'rashee rice', 'chris olave', 'james cook', 'trey mcbride', 'brock bowers',
+            'a.j. brown', 'ashton jeanty', 'omarion hampton', 'josh allen', 'chase brown',
+            'tetairoa mcmillan', 'drake maye', 'lamar jackson', 'tee higgins', 'saquon barkley',
+            'garrett wilson', 'bucky irving', 'jeremiyah love', 'josh jacobs', 'ladd mcconkey',
+            'joe burrow', 'zay flowers', 'breece hall', 'davante adams', 'jameson williams',
+            'derrick henry', 'jaylen waddle', 'devonta smith', 'luther burden', 'terry mclaurin',
+            'kenneth walker', 'kyren williams', 'mike evans', 'colston loveland', 'rj harvey',
+            'javonte williams', 'courtland sutton', 'travis etienne', 'treveyon henderson', 'jayden daniels',
+            'emeka egbuka', 'cam skattebo', 'harold fannin', 'christian watson', 'jalen hurts',
+            'dk metcalf', 'tyler warren', 'quinshon judkins', 'jaxson dart', 'jakobi meyers',
+            'rome odunze', 'd\'andre swift', 'tucker kraft', 'ricky pearsall', 'jaylen warren',
+            'brian thomas', 'justin herbert', 'chris godwin', 'stefon diggs', 'kyle monangai',
+            'marvin harrison', 'trevor lawrence', 'caleb williams', 'rico dowdle', 'michael wilson',
+            'tony pollard', 'rhamondre stevenson', 'michael pittman', 'sam laporta', 'kyle pitts',
+            'dak prescott', 'brock purdy', 'patrick mahomes', 'wan\'dale robinson', 'bhayshul tuten',
+            'carnell tate', 'blake corum', 'jordan addison', 'james conner', 'david montgomery',
+            'chuba hubbard', 'khalil shakir', 'jauan jennings', 'alvin kamara', 'trey benson',
+            'alec pierce', 'jordyn tyson', 'dj moore', 'dalton kincaid', 'oronde gadsden',
+            'quentin johnston', 'matthew stafford', 'bo nix', 'jake ferguson', 'jordan love',
+            'zach charbonnet', 'aaron jones', 'juwan johnson', 'brenton strange', 'jared goff',
+            'woody marks', 'parker washington', 'baker mayfield', 'tyreek hill', 'jadarian price',
+            'jayden higgins', 'xavier worthy', 'tyler shough', 'dylan sampson', 'jacory croskey-merritt',
+            'deebo samuel', 'jayden reed', 'c.j. stroud', 'malik willis', 'josh downs',
+            'kenneth gainwell', 'dalton schultz', 'emmett johnson', 'tyler allgeier', 'george kittle',
+            'braelon allen', 'tyjae spears', 'sam darnold', 'travis hunter', 'tyrone tracy',
+            'kyler murray', 'jerry jeudy', 'troy franklin', 'jalen coker', 'dallas goedert',
+            'jordan mason', 'rachaad white', 'cam ward', 'adonai mitchell', 'hunter henry',
+            'j.k. dobbins', 'bryce young', 'chimere dike', 'rashid shaheed', 'jonah coleman',
+            'travis kelce', 'devin neal', 'brandon aiyuk', 'mark andrews', 'matthew golden',
+            'isiah pacheco', 'tre\' harris', 'isaiah likely', 'makai lemon', 'tank bigsby',
+            'romeo doubs', 'jaylin noel', 'elic ayomanor', 'kayshon boutte', 'kaleb johnson',
+            'kimani vidal', 'pat bryant', 'keaton mitchell', 'mike washington', 'theo johnson',
+            'brian robinson', 'j.j. mccarthy', 'tre tucker', 'darnell mooney', 'kendre miller',
+            'fernando mendoza', 'michael penix', 'daniel jones', 'marvin mims', 'ryan flournoy',
+            'aj barner', 't.j. hockenson', 'jalen mcmillan', 'joe mixon', 'isaiah davis',
+            'mason taylor', 'keon coleman', 'jaylen wright', 'kaytron allen', 'emanuel wilson',
+            'calvin ridley', 'mack hollins', 'brashard smith', 'terrance ferguson', 'isaac teslaa',
+            'rashod bateman', 'xavier legette', 'jonathon brooks', 'kyle williams', 'sean tucker',
+            'najee harris', 'ray davis', 'dontayvion wicks', 'keenan allen', 'kenyon sadiq',
+            'chris rodriguez', 'chris brazzell', 'jerome ford', 'gunnar helm', 'nicholas singleton',
+            'cooper kupp', 'darius slayton', 'tory horton', 'chig okonkwo', 'elijah sarratt',
+            'david njoku', 'ty johnson', 'isaiah bond', 'ollie gordon', 'demond claiborne',
+            'jack bech', 'tank dell', 'colby parkinson', 'jaleel mclaughlin', 'evan engram',
+            'pat freiermuth', 'devaughn vele', 'cade otton', 'shedeur sanders', 'andrei iosivas',
+            'eli stowers', 'denzel boston', 'zachariah branch', 'jalen royals', 'germie bernard',
+            'konata mumpfield', 'jacoby brissett', 'kc concepcion', 'luke mccaffrey', 'christian kirk',
+            'jaydon blue', 'calvin austin', 'isaac guerendo', 'cedric tillman', 'malik davis',
+            'malik washington', 'tua tagovailoa', 'george holani', 'lequint allen', 'dont\'e thornton',
+            'audric estime', 'dj giddens', 'mac jones', 'devin singletary', 'justice hill',
+            'tyquan thornton', 'chris brooks', 'samaje perine', 'noah gray', 'trevor etienne',
+            'olamide zaccheaus', 'mike gesicki', 'john metchie', 'jake tonges', 'marshawn lloyd',
+            'tez johnson', 'jarquez hunter', 'michael carter', 'darren waller', 'emari demercado',
+            'tahj brooks', 'omar cooper', 'jaylin lane', 'will shipley', 'joshua palmer',
+            'kareem hunt', 'jalen nailor', 'aaron rodgers', 'austin ekeler', 'nick chubb',
+            'ben sinnott', 'anthony richardson', 'demario douglas', 'jordan james', 'xavier hutchinson',
+            'john bates', 'geno smith', 'elijah arroyo', 'malachi fields', 'michael mayer',
+            'jawhar jordan', 'joe milton', 'raheim sanders', 'antonio gibson', 'dameon pierce',
+            'darnell washington', 'antonio williams', 'adam randall', 'chris bell', 'ty simpson',
+            'le\'veon moss', 'j\'mari taylor', 'ja\'kobi lane', 'ted hurst', 'justin fields',
+            'tyler higbee', 'ja\'tavion sanders', 'greg dulcich', 'cole kmet', 'noah fant',
+            'jonnu smith', 'skyler bell', 'tyrod taylor', 'deshaun watson', 'jameis winston',
+            'marcus mariota', 'luke musgrave', 'dawson knox', 'elijah higgins', 'zach ertz',
+            'michael trigg', 'max klare', 'taysom hill'
+        ]
+    }
+};
+let currentRankingsSource = 'fantasypros';
+
+// Stats source registry — add new sources here
+const ROTOWIRE_STATS = {
   "josh allen": {passYds: 3650, passTD: 27, int: 10, rushYds: 535, catches: 0, recYds: 0, td: 11, fumbles: 3},
   "bijan robinson": {passYds: 0, passTD: 0, int: 0, rushYds: 1372, catches: 64, recYds: 537, td: 12, fumbles: 2},
   "puka nacua": {passYds: 0, passTD: 0, int: 0, rushYds: 55, catches: 107, recYds: 1400, td: 10, fumbles: 1},
@@ -2170,6 +2325,14 @@ const PLAYER_STATS_RAW = {
   "ben skowronek": {passYds: 0, passTD: 0, int: 0, rushYds: 6, catches: 0, recYds: 0, td: 0, fumbles: 0}
 };
 
+const STATS_SOURCES = {
+    rotowire: { label: 'Rotowire', data: ROTOWIRE_STATS },
+    manual:   { label: 'Manual',   data: null }
+};
+let PLAYER_STATS_RAW = ROTOWIRE_STATS;
+let currentStatsSource = 'rotowire';
+let manualStatsData = null;
+
 function calculatePlayerPoints(playerKey) {
     const stats = PLAYER_STATS_RAW[playerKey];
     if (!stats) return null; // Return null if no stats available
@@ -2320,15 +2483,23 @@ function populateRawData(posFilter) {
 
     header.innerHTML = columns.map(c => `<th>${c.label}</th>`).join('');
 
+    const isManual = currentStatsSource === 'manual';
+    const statFields = ['passYds', 'passTD', 'int', 'rushYds', 'catches', 'recYds', 'td', 'fumbles'];
+
     tbody.innerHTML = players.map(p => {
         return '<tr>' + columns.map(c => {
             const val = p[c.field];
             if (c.field === 'name') return `<td><span class="player-name">${val}</span></td>`;
             if (c.field === 'position') return `<td><span class="position-badge ${val}">${val}</span></td>`;
             if (c.field === 'points') return `<td><span class="points-value">${val}</span></td>`;
+            if (isManual && statFields.includes(c.field)) {
+                return `<td class="editable" data-player="${p.key}" data-stat="${c.field}">${val || 0}</td>`;
+            }
             return `<td>${val || 0}</td>`;
         }).join('') + '</tr>';
     }).join('');
+
+    if (isManual) attachEditHandlers();
 }
 
 function filterRawData(pos, event) {
@@ -3037,76 +3208,88 @@ function switchTab(tabName) {
     }
 }
 
+// Source switching functions
+function switchRankingsSource(sourceKey) {
+    currentRankingsSource = sourceKey;
+    document.querySelectorAll('#rankingsSourceSelector .source-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.trim() === RANKINGS_SOURCES[sourceKey].label);
+    });
+    populateRankings();
+}
+
+function switchStatsSource(sourceKey) {
+    currentStatsSource = sourceKey;
+    document.querySelectorAll('#statsSourceSelector .source-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.trim() === STATS_SOURCES[sourceKey].label);
+    });
+    if (sourceKey === 'manual') {
+        if (!manualStatsData) {
+            manualStatsData = JSON.parse(JSON.stringify(ROTOWIRE_STATS));
+            STATS_SOURCES.manual.data = manualStatsData;
+        }
+        PLAYER_STATS_RAW = manualStatsData;
+        document.getElementById('manualEditNotice').style.display = '';
+    } else {
+        PLAYER_STATS_RAW = ROTOWIRE_STATS;
+        document.getElementById('manualEditNotice').style.display = 'none';
+    }
+    recalculateAllPoints();
+    populateRawData(rawDataFilter);
+}
+
+function resetManualStats() {
+    manualStatsData = JSON.parse(JSON.stringify(ROTOWIRE_STATS));
+    STATS_SOURCES.manual.data = manualStatsData;
+    PLAYER_STATS_RAW = manualStatsData;
+    recalculateAllPoints();
+    populateRawData(rawDataFilter);
+}
+
+function attachEditHandlers() {
+    document.querySelectorAll('#rawdataBody td.editable').forEach(td => {
+        td.addEventListener('click', function() {
+            if (this.querySelector('input')) return; // already editing
+            const playerKey = this.dataset.player;
+            const statKey = this.dataset.stat;
+            const currentVal = PLAYER_STATS_RAW[playerKey][statKey];
+            const originalText = this.textContent;
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentVal;
+            this.textContent = '';
+            this.appendChild(input);
+            input.focus();
+            input.select();
+
+            const save = () => {
+                const newVal = parseInt(input.value) || 0;
+                PLAYER_STATS_RAW[playerKey][statKey] = newVal;
+                this.textContent = newVal;
+                recalculateAllPoints();
+                // Update the points cell in this row
+                const row = this.closest('tr');
+                const pointsCell = row.querySelector('.points-value');
+                if (pointsCell && PLAYERS_DATA[playerKey]) {
+                    pointsCell.textContent = PLAYERS_DATA[playerKey].points;
+                }
+            };
+
+            const cancel = () => {
+                this.textContent = originalText;
+            };
+
+            input.addEventListener('blur', save);
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { input.removeEventListener('blur', save); save(); }
+                if (e.key === 'Escape') { input.removeEventListener('blur', save); cancel(); }
+            });
+        });
+    });
+}
+
 function populateRankings() {
-    // FantasyPros 2026 consensus ADP order
-    const adpOrder = [
-        'ja\'marr chase', 'puka nacua', 'bijan robinson', 'jaxon smith-njigba', 'jahmyr gibbs',
-        'ceedee lamb', 'amon-ra st. brown', 'christian mccaffrey', 'justin jefferson', 'jonathan taylor',
-        'de\'von achane', 'drake london', 'malik nabers', 'nico collins', 'george pickens',
-        'rashee rice', 'chris olave', 'james cook', 'trey mcbride', 'brock bowers',
-        'a.j. brown', 'ashton jeanty', 'omarion hampton', 'josh allen', 'chase brown',
-        'tetairoa mcmillan', 'drake maye', 'lamar jackson', 'tee higgins', 'saquon barkley',
-        'garrett wilson', 'bucky irving', 'jeremiyah love', 'josh jacobs', 'ladd mcconkey',
-        'joe burrow', 'zay flowers', 'breece hall', 'davante adams', 'jameson williams',
-        'derrick henry', 'jaylen waddle', 'devonta smith', 'luther burden', 'terry mclaurin',
-        'kenneth walker', 'kyren williams', 'mike evans', 'colston loveland', 'rj harvey',
-        'javonte williams', 'courtland sutton', 'travis etienne', 'treveyon henderson', 'jayden daniels',
-        'emeka egbuka', 'cam skattebo', 'harold fannin', 'christian watson', 'jalen hurts',
-        'dk metcalf', 'tyler warren', 'quinshon judkins', 'jaxson dart', 'jakobi meyers',
-        'rome odunze', 'd\'andre swift', 'tucker kraft', 'ricky pearsall', 'jaylen warren',
-        'brian thomas', 'justin herbert', 'chris godwin', 'stefon diggs', 'kyle monangai',
-        'marvin harrison', 'trevor lawrence', 'caleb williams', 'rico dowdle', 'michael wilson',
-        'tony pollard', 'rhamondre stevenson', 'michael pittman', 'sam laporta', 'kyle pitts',
-        'dak prescott', 'brock purdy', 'patrick mahomes', 'wan\'dale robinson', 'bhayshul tuten',
-        'carnell tate', 'blake corum', 'jordan addison', 'james conner', 'david montgomery',
-        'chuba hubbard', 'khalil shakir', 'jauan jennings', 'alvin kamara', 'trey benson',
-        'alec pierce', 'jordyn tyson', 'dj moore', 'dalton kincaid', 'oronde gadsden',
-        'quentin johnston', 'matthew stafford', 'bo nix', 'jake ferguson', 'jordan love',
-        'zach charbonnet', 'aaron jones', 'juwan johnson', 'brenton strange', 'jared goff',
-        'woody marks', 'parker washington', 'baker mayfield', 'tyreek hill', 'jadarian price',
-        'jayden higgins', 'xavier worthy', 'tyler shough', 'dylan sampson', 'jacory croskey-merritt',
-        'deebo samuel', 'jayden reed', 'c.j. stroud', 'malik willis', 'josh downs',
-        'kenneth gainwell', 'dalton schultz', 'emmett johnson', 'tyler allgeier', 'george kittle',
-        'braelon allen', 'tyjae spears', 'sam darnold', 'travis hunter', 'tyrone tracy',
-        'kyler murray', 'jerry jeudy', 'troy franklin', 'jalen coker', 'dallas goedert',
-        'jordan mason', 'rachaad white', 'cam ward', 'adonai mitchell', 'hunter henry',
-        'j.k. dobbins', 'bryce young', 'chimere dike', 'rashid shaheed', 'jonah coleman',
-        'travis kelce', 'devin neal', 'brandon aiyuk', 'mark andrews', 'matthew golden',
-        'isiah pacheco', 'tre\' harris', 'isaiah likely', 'makai lemon', 'tank bigsby',
-        'romeo doubs', 'jaylin noel', 'elic ayomanor', 'kayshon boutte', 'kaleb johnson',
-        'kimani vidal', 'pat bryant', 'keaton mitchell', 'mike washington', 'theo johnson',
-        'brian robinson', 'j.j. mccarthy', 'tre tucker', 'darnell mooney', 'kendre miller',
-        'fernando mendoza', 'michael penix', 'daniel jones', 'marvin mims', 'ryan flournoy',
-        'aj barner', 't.j. hockenson', 'jalen mcmillan', 'joe mixon', 'isaiah davis',
-        'mason taylor', 'keon coleman', 'jaylen wright', 'kaytron allen', 'emanuel wilson',
-        'calvin ridley', 'mack hollins', 'brashard smith', 'terrance ferguson', 'isaac teslaa',
-        'rashod bateman', 'xavier legette', 'jonathon brooks', 'kyle williams', 'sean tucker',
-        'najee harris', 'ray davis', 'dontayvion wicks', 'keenan allen', 'kenyon sadiq',
-        'chris rodriguez', 'chris brazzell', 'jerome ford', 'gunnar helm', 'nicholas singleton',
-        'cooper kupp', 'darius slayton', 'tory horton', 'chig okonkwo', 'elijah sarratt',
-        'david njoku', 'ty johnson', 'isaiah bond', 'ollie gordon', 'demond claiborne',
-        'jack bech', 'tank dell', 'colby parkinson', 'jaleel mclaughlin', 'evan engram',
-        'pat freiermuth', 'devaughn vele', 'cade otton', 'shedeur sanders', 'andrei iosivas',
-        'eli stowers', 'denzel boston', 'zachariah branch', 'jalen royals', 'germie bernard',
-        'konata mumpfield', 'jacoby brissett', 'kc concepcion', 'luke mccaffrey', 'christian kirk',
-        'jaydon blue', 'calvin austin', 'isaac guerendo', 'cedric tillman', 'malik davis',
-        'malik washington', 'tua tagovailoa', 'george holani', 'lequint allen', 'dont\'e thornton',
-        'audric estime', 'dj giddens', 'mac jones', 'devin singletary', 'justice hill',
-        'tyquan thornton', 'chris brooks', 'samaje perine', 'noah gray', 'trevor etienne',
-        'olamide zaccheaus', 'mike gesicki', 'john metchie', 'jake tonges', 'marshawn lloyd',
-        'tez johnson', 'jarquez hunter', 'michael carter', 'darren waller', 'emari demercado',
-        'tahj brooks', 'omar cooper', 'jaylin lane', 'will shipley', 'joshua palmer',
-        'kareem hunt', 'jalen nailor', 'aaron rodgers', 'austin ekeler', 'nick chubb',
-        'ben sinnott', 'anthony richardson', 'demario douglas', 'jordan james', 'xavier hutchinson',
-        'john bates', 'geno smith', 'elijah arroyo', 'malachi fields', 'michael mayer',
-        'jawhar jordan', 'joe milton', 'raheim sanders', 'antonio gibson', 'dameon pierce',
-        'darnell washington', 'antonio williams', 'adam randall', 'chris bell', 'ty simpson',
-        'le\'veon moss', 'j\'mari taylor', 'ja\'kobi lane', 'ted hurst', 'justin fields',
-        'tyler higbee', 'ja\'tavion sanders', 'greg dulcich', 'cole kmet', 'noah fant',
-        'jonnu smith', 'skyler bell', 'tyrod taylor', 'deshaun watson', 'jameis winston',
-        'marcus mariota', 'luke musgrave', 'dawson knox', 'elijah higgins', 'zach ertz',
-        'michael trigg', 'max klare', 'taysom hill'
-    ];
+    const adpOrder = RANKINGS_SOURCES[currentRankingsSource].adpOrder;
 
     const rankings = [];
     let rank = 1;
