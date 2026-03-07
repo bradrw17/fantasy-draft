@@ -114,6 +114,17 @@
 - **New JS functions:** `switchRankingsSource()`, `switchStatsSource()`, `resetManualStats()`, `attachEditHandlers()`
 - **New JS variables:** `RANKINGS_SOURCES`, `ROTOWIRE_STATS`, `STATS_SOURCES`, `currentRankingsSource`, `currentStatsSource`, `manualStatsData`
 
+- **Optimal Lineups dropdown** on Roster View — "⚡ Optimal Lineups ▾" button between Clear Lineup and Disable Comparison Mode. Dropdown has 4 draft strategy presets, each with [A] and [B] buttons to fill a specific scenario:
+  1. **Late QB & TE** — QB Rd 7 (Trevor Lawrence), TE Rd 6 (Tyler Warren), RB/WR heavy Rds 1-5
+  2. **Early QB & TE** — QB Rd 3 (Lamar Jackson), TE Rd 2 (Trey McBride), fill RB/WR later
+  3. **Early QB, Late TE** — QB Rd 3 (Lamar Jackson), TE Rd 6 (Tyler Warren)
+  4. **Early TE, Late QB** — TE Rd 2 (Trey McBride), QB Rd 6 (Jayden Daniels)
+  - `OPTIMAL_PRESETS` array stores slot tuples `[slotIndex, playerKey, round]`
+  - `applyPreset(presetIndex, scenario)` calls `clearScenario()`, fills slots via `PLAYERS_DATA` lookup + `updatePlayerDisplay()`, sets round inputs, calls `calculateTotal()`
+  - `toggleOptimalDropdown()` toggles `#optimalDropdown`
+  - Outside-click handler updated for `.optimal-wrapper`
+  - New CSS: `.optimal-wrapper`, `.optimal-dropdown`, `.optimal-row`, `.scenario-btns`, `.strategy-name`
+
 ---
 
 *Update this file at the end of each work session with what was changed.*

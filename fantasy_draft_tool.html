@@ -835,6 +835,61 @@
             accent-color: #667eea;
         }
 
+        /* Optimal Lineups Dropdown */
+        .optimal-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .optimal-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 5px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 100;
+            min-width: 320px;
+        }
+        .optimal-dropdown.open { display: block; }
+        .optimal-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .optimal-row:hover { background: #f0f0f0; }
+        .optimal-row .scenario-btns {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .optimal-row .scenario-btns button {
+            padding: 4px 10px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            background: white;
+            color: #667eea;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .optimal-row .scenario-btns button:hover {
+            background: #667eea;
+            color: white;
+        }
+        .optimal-row .strategy-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #333;
+        }
+
         /* Raw Data Tab */
         .rawdata-container {
             background: white;
@@ -1082,6 +1137,12 @@
         }
 
         @media (max-width: 768px) {
+            .optimal-dropdown {
+                min-width: 280px;
+                left: auto;
+                right: 0;
+            }
+
             .rankings-table {
                 font-size: 0.85rem;
             }
@@ -1169,6 +1230,39 @@
                         <div class="rounds-dropdown" id="lineupDropdown"></div>
                     </div>
                     <button class="show-rounds-btn" onclick="clearAllRosterSlots()">🗑 Clear Lineup</button>
+                    <div class="optimal-wrapper">
+                        <button class="show-rounds-btn" onclick="toggleOptimalDropdown()">⚡ Optimal Lineups ▾</button>
+                        <div class="optimal-dropdown" id="optimalDropdown">
+                            <div class="optimal-row">
+                                <div class="scenario-btns">
+                                    <button onclick="applyPreset(0, 'a')">A</button>
+                                    <button onclick="applyPreset(0, 'b')">B</button>
+                                </div>
+                                <span class="strategy-name">Late QB &amp; TE</span>
+                            </div>
+                            <div class="optimal-row">
+                                <div class="scenario-btns">
+                                    <button onclick="applyPreset(1, 'a')">A</button>
+                                    <button onclick="applyPreset(1, 'b')">B</button>
+                                </div>
+                                <span class="strategy-name">Early QB &amp; TE</span>
+                            </div>
+                            <div class="optimal-row">
+                                <div class="scenario-btns">
+                                    <button onclick="applyPreset(2, 'a')">A</button>
+                                    <button onclick="applyPreset(2, 'b')">B</button>
+                                </div>
+                                <span class="strategy-name">Early QB, Late TE</span>
+                            </div>
+                            <div class="optimal-row">
+                                <div class="scenario-btns">
+                                    <button onclick="applyPreset(3, 'a')">A</button>
+                                    <button onclick="applyPreset(3, 'b')">B</button>
+                                </div>
+                                <span class="strategy-name">Early TE, Late QB</span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="comparison-toggle" style="margin:0 auto;">
                         <button class="toggle-btn active" id="comparisonToggle" onclick="toggleComparisonMode()">
                             ❌ Disable Comparison Mode
@@ -2638,6 +2732,86 @@ function toggleLineupDropdown() {
     document.getElementById('lineupDropdown').classList.toggle('open');
 }
 
+// Optimal Lineup Presets
+// Each slot entry: [slotIndex, playerKey, roundNumber]
+// Slot indices: 0=QB, 1=RB1, 2=RB2, 3=WR1, 4=WR2, 5=TE, 6=FLEX
+const OPTIMAL_PRESETS = [
+    { // 0: Late QB & TE
+        name: 'Late QB & TE',
+        slots: [
+            [0, 'trevor lawrence', 7],
+            [1, 'james cook', 2],
+            [2, 'kyren williams', 4],
+            [3, 'amon-ra st. brown', 1],
+            [4, 'garrett wilson', 3],
+            [5, 'tyler warren', 6],
+            [6, 'travis etienne', 5]
+        ]
+    },
+    { // 1: Early QB & TE
+        name: 'Early QB & TE',
+        slots: [
+            [0, 'lamar jackson', 3],
+            [1, 'kyren williams', 4],
+            [2, 'quinshon judkins', 6],
+            [3, 'amon-ra st. brown', 1],
+            [4, 'emeka egbuka', 5],
+            [5, 'trey mcbride', 2],
+            [6, 'michael wilson', 7]
+        ]
+    },
+    { // 2: Early QB, Late TE
+        name: 'Early QB, Late TE',
+        slots: [
+            [0, 'lamar jackson', 3],
+            [1, 'james cook', 2],
+            [2, 'kyren williams', 4],
+            [3, 'amon-ra st. brown', 1],
+            [4, 'terry mclaurin', 5],
+            [5, 'tyler warren', 6],
+            [6, "d'andre swift", 7]
+        ]
+    },
+    { // 3: Early TE, Late QB
+        name: 'Early TE, Late QB',
+        slots: [
+            [0, 'jayden daniels', 6],
+            [1, 'kyren williams', 4],
+            [2, 'travis etienne', 5],
+            [3, 'amon-ra st. brown', 1],
+            [4, 'garrett wilson', 3],
+            [5, 'trey mcbride', 2],
+            [6, "d'andre swift", 7]
+        ]
+    }
+];
+
+function toggleOptimalDropdown() {
+    document.getElementById('optimalDropdown').classList.toggle('open');
+}
+
+function applyPreset(presetIndex, scenario) {
+    clearScenario(scenario);
+
+    const preset = OPTIMAL_PRESETS[presetIndex];
+    const rosterId = scenario === 'a' ? 'rosterA' : 'rosterB';
+    const slots = document.querySelectorAll('#' + rosterId + ' .roster-slot');
+
+    preset.slots.forEach(([slotIndex, playerKey, round]) => {
+        const player = PLAYERS_DATA[playerKey];
+        if (!player || !slots[slotIndex]) return;
+
+        const slot = slots[slotIndex];
+        const wrapper = slot.querySelector('.player-input-wrapper');
+        wrapper.querySelector('.player-input').value = player.name;
+        updatePlayerDisplay(wrapper, player);
+        slot.querySelector('.round-input').value = round;
+    });
+
+    calculateTotal();
+    document.getElementById('optimalDropdown').classList.remove('open');
+}
+
 function toggleLineupSlot(index, visible) {
     ['rosterA', 'rosterB'].forEach(id => {
         const slots = document.querySelectorAll(`#${id} .roster-slot`);
@@ -2694,6 +2868,10 @@ document.addEventListener('click', (e) => {
     const lineupWrapper = document.querySelector('.show-lineup-wrapper');
     if (lineupWrapper && !lineupWrapper.contains(e.target)) {
         document.getElementById('lineupDropdown').classList.remove('open');
+    }
+    const optimalWrapper = document.querySelector('.optimal-wrapper');
+    if (optimalWrapper && !optimalWrapper.contains(e.target)) {
+        document.getElementById('optimalDropdown').classList.remove('open');
     }
 });
 
