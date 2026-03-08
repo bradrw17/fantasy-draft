@@ -2696,15 +2696,16 @@ function prefillRoundSlot(rosterId, round, playerKey) {
 }
 
 // --- Show Lineup Dropdown for Roster View ---
+// Must match HTML slot order: QB, RB, RB, WR, WR, TE, FLEX, WR(3), FLEX(2), SF
 const LINEUP_SLOTS = [
     { label: 'QB', defaultOn: true },
     { label: 'RB 1', defaultOn: true },
     { label: 'RB 2', defaultOn: true },
     { label: 'WR 1', defaultOn: true },
     { label: 'WR 2', defaultOn: true },
-    { label: 'WR 3', defaultOn: false },
     { label: 'TE', defaultOn: true },
     { label: 'FLEX 1', defaultOn: true },
+    { label: 'WR 3', defaultOn: false },
     { label: 'FLEX 2', defaultOn: false },
     { label: 'SF', defaultOn: false },
 ];
