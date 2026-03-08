@@ -1334,6 +1334,17 @@
                     <input type="number" class="round-input" placeholder="Rd" min="1" max="20" value="3">
                 </div>
 
+                <div class="roster-slot" data-position="WR" style="display:none">
+                    <div class="position-label WR">WR</div>
+                    <div class="player-input-wrapper">
+                        <input type="text" class="player-input" placeholder="Search player...">
+                        <div class="autocomplete-list hidden"></div>
+                        <div class="player-info"></div>
+                    </div>
+                    <div class="points-display">0</div>
+                    <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
+                </div>
+
                 <div class="roster-slot" data-position="TE">
                     <div class="position-label TE">TE</div>
                     <div class="player-input-wrapper">
@@ -1354,17 +1365,6 @@
                     </div>
                     <div class="points-display">195</div>
                     <input type="number" class="round-input" placeholder="Rd" min="1" max="20" value="5">
-                </div>
-
-                <div class="roster-slot" data-position="WR" style="display:none">
-                    <div class="position-label WR">WR</div>
-                    <div class="player-input-wrapper">
-                        <input type="text" class="player-input" placeholder="Search player...">
-                        <div class="autocomplete-list hidden"></div>
-                        <div class="player-info"></div>
-                    </div>
-                    <div class="points-display">0</div>
-                    <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
                 </div>
 
                 <div class="roster-slot" data-position="FLEX" style="display:none">
@@ -1460,6 +1460,17 @@
                     <input type="number" class="round-input" placeholder="Rd" min="1" max="20" value="5">
                 </div>
 
+                <div class="roster-slot" data-position="WR" style="display:none">
+                    <div class="position-label WR">WR</div>
+                    <div class="player-input-wrapper">
+                        <input type="text" class="player-input" placeholder="Search player...">
+                        <div class="autocomplete-list hidden"></div>
+                        <div class="player-info"></div>
+                    </div>
+                    <div class="points-display">0</div>
+                    <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
+                </div>
+
                 <div class="roster-slot" data-position="TE">
                     <div class="position-label TE">TE</div>
                     <div class="player-input-wrapper">
@@ -1480,17 +1491,6 @@
                     </div>
                     <div class="points-display">151</div>
                     <input type="number" class="round-input" placeholder="Rd" min="1" max="20" value="7">
-                </div>
-
-                <div class="roster-slot" data-position="WR" style="display:none">
-                    <div class="position-label WR">WR</div>
-                    <div class="player-input-wrapper">
-                        <input type="text" class="player-input" placeholder="Search player...">
-                        <div class="autocomplete-list hidden"></div>
-                        <div class="player-info"></div>
-                    </div>
-                    <div class="points-display">0</div>
-                    <input type="number" class="round-input" placeholder="Rd" min="1" max="20">
                 </div>
 
                 <div class="roster-slot" data-position="FLEX" style="display:none">
@@ -2696,16 +2696,16 @@ function prefillRoundSlot(rosterId, round, playerKey) {
 }
 
 // --- Show Lineup Dropdown for Roster View ---
-// Must match HTML slot order: QB, RB, RB, WR, WR, TE, FLEX, WR(3), FLEX(2), SF
+// Must match HTML slot order: QB, RB, RB, WR, WR, WR3, TE, FLEX, FLEX2, SF
 const LINEUP_SLOTS = [
     { label: 'QB', defaultOn: true },
     { label: 'RB 1', defaultOn: true },
     { label: 'RB 2', defaultOn: true },
     { label: 'WR 1', defaultOn: true },
     { label: 'WR 2', defaultOn: true },
+    { label: 'WR 3', defaultOn: false },
     { label: 'TE', defaultOn: true },
     { label: 'FLEX 1', defaultOn: true },
-    { label: 'WR 3', defaultOn: false },
     { label: 'FLEX 2', defaultOn: false },
     { label: 'SF', defaultOn: false },
 ];
@@ -2726,7 +2726,7 @@ function toggleLineupDropdown() {
 
 // Optimal Lineup Presets
 // Each slot entry: [slotIndex, playerKey, roundNumber]
-// Slot indices: 0=QB, 1=RB1, 2=RB2, 3=WR1, 4=WR2, 5=TE, 6=FLEX
+// Slot indices: 0=QB, 1=RB1, 2=RB2, 3=WR1, 4=WR2, 5=WR3, 6=TE, 7=FLEX, 8=FLEX2, 9=SF
 const OPTIMAL_PRESETS = [
     { // 0: Late QB & TE
         name: 'Late QB & TE',
@@ -2736,8 +2736,8 @@ const OPTIMAL_PRESETS = [
             [2, 'kyren williams', 4],
             [3, 'amon-ra st. brown', 1],
             [4, 'garrett wilson', 3],
-            [5, 'tyler warren', 6],
-            [6, 'travis etienne', 5]
+            [6, 'tyler warren', 6],
+            [7, 'travis etienne', 5]
         ]
     },
     { // 1: Early QB & TE
@@ -2748,8 +2748,8 @@ const OPTIMAL_PRESETS = [
             [2, 'quinshon judkins', 6],
             [3, 'amon-ra st. brown', 1],
             [4, 'emeka egbuka', 5],
-            [5, 'trey mcbride', 2],
-            [6, 'michael wilson', 7]
+            [6, 'trey mcbride', 2],
+            [7, 'michael wilson', 7]
         ]
     },
     { // 2: Early QB, Late TE
@@ -2760,8 +2760,8 @@ const OPTIMAL_PRESETS = [
             [2, 'kyren williams', 4],
             [3, 'amon-ra st. brown', 1],
             [4, 'terry mclaurin', 5],
-            [5, 'tyler warren', 6],
-            [6, "d'andre swift", 7]
+            [6, 'tyler warren', 6],
+            [7, "d'andre swift", 7]
         ]
     },
     { // 3: Early TE, Late QB
@@ -2772,8 +2772,8 @@ const OPTIMAL_PRESETS = [
             [2, 'travis etienne', 5],
             [3, 'amon-ra st. brown', 1],
             [4, 'garrett wilson', 3],
-            [5, 'trey mcbride', 2],
-            [6, "d'andre swift", 7]
+            [6, 'trey mcbride', 2],
+            [7, "d'andre swift", 7]
         ]
     }
 ];
