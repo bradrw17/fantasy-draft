@@ -2656,9 +2656,10 @@ function initRoundView() {
 
     // Build the dropdown checkboxes
     const dropdown = document.getElementById('roundsDropdown');
+    const defaultVisibleRounds = [2, 6];
     let html = '';
     for (let r = 1; r <= MAX_ROUNDS; r++) {
-        const checked = r <= DEFAULT_VISIBLE_ROUNDS ? 'checked' : '';
+        const checked = defaultVisibleRounds.includes(r) ? 'checked' : '';
         html += `<label><input type="checkbox" value="${r}" ${checked} onchange="toggleRoundVisibility(${r}, this.checked)"> Round ${r}</label>`;
     }
     dropdown.innerHTML = html;
@@ -2666,8 +2667,10 @@ function initRoundView() {
     // Wire up inputs and apply initial visibility
     setupScenarioInputs('roundRosterA');
     setupScenarioInputs('roundRosterB');
-    for (let r = DEFAULT_VISIBLE_ROUNDS + 1; r <= MAX_ROUNDS; r++) {
-        toggleRoundVisibility(r, false);
+    for (let r = 1; r <= MAX_ROUNDS; r++) {
+        if (!defaultVisibleRounds.includes(r)) {
+            toggleRoundVisibility(r, false);
+        }
     }
 
     // Default players — Round View
@@ -2675,18 +2678,6 @@ function initRoundView() {
     prefillRoundSlot('roundRosterA', 6, "d'andre swift");
     prefillRoundSlot('roundRosterB', 2, 'james cook');
     prefillRoundSlot('roundRosterB', 6, 'tyler warren');
-
-    // Hide all rows except rounds 2 and 6 by default
-    ['roundRosterA', 'roundRosterB'].forEach(id => {
-        const grid = document.getElementById(id);
-        grid.querySelectorAll('.round-slot').forEach(slot => {
-            const round = parseInt(slot.dataset.round);
-            if (round !== 2 && round !== 6) {
-                slot.classList.add('hidden-row');
-            }
-        });
-        updateShowAllBtn(grid);
-    });
 
     calculateRoundTotal();
 }
